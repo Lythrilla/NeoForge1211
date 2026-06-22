@@ -64,10 +64,10 @@ public class TriggerBot extends Module {
         if (!(entity instanceof LivingEntity living) || living == player() || !living.isAlive()) {
             return false;
         }
-        if (living instanceof Player p) {
-            if (MiddleClickFriend.isFriend(p.getGameProfile().getName())) {
-                return false;
-            }
+        if (MiddleClickFriend.isWhitelisted(entity)) {
+            return false;
+        }
+        if (living instanceof Player) {
             return targetPlayers.get();
         }
         if (living instanceof Enemy) {

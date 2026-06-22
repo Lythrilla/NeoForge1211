@@ -141,13 +141,13 @@ public class KillAura extends Module {
         if (!(entity instanceof LivingEntity living) || living == player() || !living.isAlive()) {
             return false;
         }
+        if (MiddleClickFriend.isWhitelisted(entity)) {
+            return false;
+        }
         if (living.isInvisible() && !targetInvisible.get()) {
             return false;
         }
-        if (living instanceof Player p) {
-            if (MiddleClickFriend.isFriend(p.getGameProfile().getName())) {
-                return false;
-            }
+        if (living instanceof Player) {
             return targetPlayers.get();
         }
         if (living instanceof Enemy) {
