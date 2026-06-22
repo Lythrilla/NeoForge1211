@@ -1,7 +1,9 @@
 package com.neoassist.module.impl.combat;
 
+import com.neoassist.NeoAssist;
 import com.neoassist.module.Category;
 import com.neoassist.module.Module;
+import com.neoassist.module.impl.render.NoHurtCam;
 import com.neoassist.module.setting.NumberSetting;
 
 import net.minecraft.world.phys.Vec3;
@@ -18,11 +20,20 @@ public class AntiKnockback extends Module {
     }
 
     @Override
+    public void onEnable() {
+        lastHurtTime = 0;
+        reduceTicks = 0;
+    }
+
+    @Override
     public void onTick() {
         if (!inGame()) {
             return;
         }
-        int hurtTime = player().hurtTime;
+        Module noHurtCam = NeoAssist.MODULES.getByName("NoHurtCam");
+        int hurtTime = (noHurtCam != null && noHurtCam.isEnabled())
+                ? NoHurtCam.realHurtTime
+                : player().hurtTime;
         if (hurtTime > lastHurtTime) {
             reduceTicks = 2;
         }

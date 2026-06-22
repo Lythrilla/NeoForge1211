@@ -61,6 +61,18 @@ public class ModuleManager {
         }
     }
 
+    public void onTickAlways() {
+        for (Module m : modules) {
+            if (m.isEnabled()) {
+                try {
+                    m.onTickAlways();
+                } catch (Exception e) {
+                    NeoAssist.LOGGER.error("Error ticking (always) module {}", m.getName(), e);
+                }
+            }
+        }
+    }
+
     public void onTick() {
         for (Module m : modules) {
             if (m.isEnabled()) {

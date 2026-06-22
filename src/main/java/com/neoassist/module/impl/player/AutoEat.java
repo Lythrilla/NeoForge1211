@@ -34,7 +34,7 @@ public class AutoEat extends Module {
 
         if (eating) {
             // keep eating until full or out of food
-            if (foodLevel >= 19 || !InventoryUtil.isEdible(player().getInventory().getItem(player().getInventory().selected))) {
+            if (foodLevel >= 20 || !InventoryUtil.isEdible(player().getInventory().getItem(player().getInventory().selected))) {
                 stop();
             } else {
                 mc.options.keyUse.setDown(true);

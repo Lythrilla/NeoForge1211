@@ -135,6 +135,10 @@ public abstract class Module {
     public void onTick() {
     }
 
+    /** Called every client tick regardless of whether a player is loaded. */
+    public void onTickAlways() {
+    }
+
     public void onRender2D(net.minecraft.client.gui.GuiGraphics graphics, float partial) {
     }
 

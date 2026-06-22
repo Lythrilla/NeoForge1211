@@ -28,6 +28,7 @@ public class FakeLag extends Module {
 
     @Override
     public void onEnable() {
+        ticks = 0;
         active = true;
     }
 

@@ -21,7 +21,7 @@ public class AutoReconnect extends Module {
     }
 
     @Override
-    public void onTick() {
+    public void onTickAlways() {
         if (mc.player != null || !(mc.screen instanceof DisconnectedScreen)) {
             ticks = 0;
             return;
