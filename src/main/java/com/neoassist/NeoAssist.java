@@ -7,11 +7,13 @@ import com.neoassist.gui.clickgui.ClickGuiScreen;
 import com.neoassist.module.ModuleManager;
 import com.neoassist.module.impl.combat.AntiKnockback;
 import com.neoassist.module.impl.combat.AutoClicker;
+import com.neoassist.module.impl.combat.AutoShield;
 import com.neoassist.module.impl.combat.AutoTotem;
 import com.neoassist.module.impl.combat.BowAimbot;
 import com.neoassist.module.impl.combat.Criticals;
 import com.neoassist.module.impl.combat.KillAura;
 import com.neoassist.module.impl.combat.Reach;
+import com.neoassist.module.impl.combat.TriggerBot;
 import com.neoassist.module.impl.misc.AntiAFK;
 import com.neoassist.module.impl.misc.AutoReconnect;
 import com.neoassist.module.impl.misc.FakeLag;
@@ -22,6 +24,7 @@ import com.neoassist.module.impl.movement.Flight;
 import com.neoassist.module.impl.movement.HighJump;
 import com.neoassist.module.impl.movement.Jesus;
 import com.neoassist.module.impl.movement.NoSlow;
+import com.neoassist.module.impl.movement.Parkour;
 import com.neoassist.module.impl.movement.Sneak;
 import com.neoassist.module.impl.movement.Spider;
 import com.neoassist.module.impl.movement.Step;
@@ -85,13 +88,13 @@ public class NeoAssist {
         MODULES.register(
                 // Combat
                 new KillAura(), new AutoTotem(), new AutoClicker(), new AntiKnockback(),
-                new Criticals(), new Reach(), new BowAimbot(),
+                new Criticals(), new Reach(), new BowAimbot(), new TriggerBot(), new AutoShield(),
                 // Player
                 new AutoEat(), new AutoTool(), new AutoArmor(), new ChestStealer(),
                 new FastPlace(), new AutoRespawn(), new AutoFish(), new NoFall(),
                 // Movement
                 new AutoSprint(), new Step(), new Sneak(), new Spider(), new AutoWalk(), new HighJump(),
-                new Flight(), new Jesus(), new NoSlow(),
+                new Flight(), new Jesus(), new NoSlow(), new Parkour(),
                 // World
                 new BlockESP(), new Nuker(), new Scaffold(), new AutoReplant(),
                 // Render

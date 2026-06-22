@@ -23,9 +23,9 @@ ClickGUI, per-module keybinds, JSON config persistence, and a large set of survi
 
 | Category | Modules |
 |----------|---------|
-| Combat   | KillAura, AutoTotem, AutoClicker, AntiKnockback, Criticals, Reach, BowAimbot |
+| Combat   | KillAura, AutoTotem, AutoClicker, AntiKnockback, Criticals, Reach, BowAimbot, TriggerBot, AutoShield |
 | Player   | AutoEat, AutoTool, AutoArmor, ChestStealer, FastPlace, AutoRespawn, AutoFish, NoFall |
-| Movement | AutoSprint, Step, Sneak, Spider, AutoWalk, HighJump, Flight, Jesus, NoSlow |
+| Movement | AutoSprint, Step, Sneak, Spider, AutoWalk, HighJump, Flight, Jesus, NoSlow, Parkour |
 | World    | BlockESP (in-GUI block picker), Nuker, Scaffold, AutoReplant |
 | Render   | Fullbright, Zoom, HUD (ArrayList / coords / direction / ping / FPS), Tracers, EntityESP, NoHurtCam, Chams, StorageESP, Trajectories, NameTags |
 | Misc     | AntiAFK, AutoReconnect, Timer, FakeLag |
