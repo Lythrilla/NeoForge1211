@@ -22,11 +22,11 @@ ClickGUI, per-module keybinds, JSON config persistence, and a large set of survi
 
 | Category | Modules |
 |----------|---------|
-| Combat   | KillAura, AutoTotem, AutoClicker |
-| Player   | AutoEat, AutoTool, AutoArmor, ChestStealer, FastPlace, AutoRespawn, AutoFish |
-| Movement | AutoSprint, Step, Sneak |
+| Combat   | KillAura, AutoTotem, AutoClicker, AntiKnockback |
+| Player   | AutoEat, AutoTool, AutoArmor, ChestStealer, FastPlace, AutoRespawn, AutoFish, NoFall |
+| Movement | AutoSprint, Step, Sneak, Spider, AutoWalk, HighJump |
 | World    | BlockESP (in-GUI block picker) |
-| Render   | Fullbright, Zoom, HUD (ArrayList / coords / FPS), Tracers |
+| Render   | Fullbright, Zoom, HUD (ArrayList / coords / FPS), Tracers, EntityESP, NoHurtCam |
 | Misc     | AntiAFK |
 
 ## Building

@@ -5,12 +5,16 @@ import com.mojang.logging.LogUtils;
 import com.neoassist.config.ConfigManager;
 import com.neoassist.gui.clickgui.ClickGuiScreen;
 import com.neoassist.module.ModuleManager;
+import com.neoassist.module.impl.combat.AntiKnockback;
 import com.neoassist.module.impl.combat.AutoClicker;
 import com.neoassist.module.impl.combat.AutoTotem;
 import com.neoassist.module.impl.combat.KillAura;
 import com.neoassist.module.impl.misc.AntiAFK;
 import com.neoassist.module.impl.movement.AutoSprint;
+import com.neoassist.module.impl.movement.AutoWalk;
+import com.neoassist.module.impl.movement.HighJump;
 import com.neoassist.module.impl.movement.Sneak;
+import com.neoassist.module.impl.movement.Spider;
 import com.neoassist.module.impl.movement.Step;
 import com.neoassist.module.impl.player.AutoArmor;
 import com.neoassist.module.impl.player.AutoEat;
@@ -19,9 +23,12 @@ import com.neoassist.module.impl.player.AutoRespawn;
 import com.neoassist.module.impl.player.AutoTool;
 import com.neoassist.module.impl.player.ChestStealer;
 import com.neoassist.module.impl.player.FastPlace;
+import com.neoassist.module.impl.player.NoFall;
 import com.neoassist.module.impl.render.BlockESP;
+import com.neoassist.module.impl.render.EntityESP;
 import com.neoassist.module.impl.render.Fullbright;
 import com.neoassist.module.impl.render.HUD;
+import com.neoassist.module.impl.render.NoHurtCam;
 import com.neoassist.module.impl.render.Tracers;
 import com.neoassist.module.impl.render.Zoom;
 
@@ -60,16 +67,16 @@ public class NeoAssist {
         MODULES = new ModuleManager();
         MODULES.register(
                 // Combat
-                new KillAura(), new AutoTotem(), new AutoClicker(),
+                new KillAura(), new AutoTotem(), new AutoClicker(), new AntiKnockback(),
                 // Player
                 new AutoEat(), new AutoTool(), new AutoArmor(), new ChestStealer(),
-                new FastPlace(), new AutoRespawn(), new AutoFish(),
+                new FastPlace(), new AutoRespawn(), new AutoFish(), new NoFall(),
                 // Movement
-                new AutoSprint(), new Step(), new Sneak(),
+                new AutoSprint(), new Step(), new Sneak(), new Spider(), new AutoWalk(), new HighJump(),
                 // World
                 new BlockESP(),
                 // Render
-                new Fullbright(), new Zoom(), new HUD(), new Tracers(),
+                new Fullbright(), new Zoom(), new HUD(), new Tracers(), new EntityESP(), new NoHurtCam(),
                 // Misc
                 new AntiAFK());
 
