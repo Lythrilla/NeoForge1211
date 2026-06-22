@@ -34,6 +34,7 @@ public class ColorComponent extends Component {
     }
 
     private void setChannel(int ch, int value) {
+        int previous = setting.get();
         int a = setting.getAlpha();
         int r = setting.getRed();
         int g = setting.getGreen();
@@ -45,6 +46,9 @@ public class ColorComponent extends Component {
             default -> b = value;
         }
         setting.setComponents(a, r, g, b);
+        if (previous != setting.get()) {
+            requestSave();
+        }
     }
 
     private int trackLeft() {

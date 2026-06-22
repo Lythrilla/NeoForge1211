@@ -34,6 +34,7 @@ public class BooleanComponent extends Component {
     public boolean mouseClicked(double mx, double my, int button) {
         if (button == 0 && hovered(mx, my)) {
             setting.toggle();
+            requestSave();
             return true;
         }
         return false;

@@ -136,6 +136,7 @@ public class NeoAssist {
         if (Minecraft.getInstance().player != null) {
             MODULES.onTick();
         }
+        CONFIG.tick();
     }
 
     private void onRenderGui(RenderGuiEvent.Post event) {

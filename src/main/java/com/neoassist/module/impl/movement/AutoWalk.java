@@ -10,9 +10,7 @@ public class AutoWalk extends Module {
 
     @Override
     public void onTick() {
-        if (inGame() && mc.screen == null) {
-            mc.options.keyUp.setDown(true);
-        }
+        mc.options.keyUp.setDown(inGame() && mc.screen == null);
     }
 
     @Override

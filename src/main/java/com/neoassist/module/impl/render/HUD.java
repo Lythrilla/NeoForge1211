@@ -12,16 +12,19 @@ import com.neoassist.module.setting.BooleanSetting;
 import com.neoassist.util.RenderUtil;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.PlayerInfo;
 
 public class HUD extends Module {
     private final BooleanSetting watermark = new BooleanSetting("Watermark", "Show the NeoAssist logo", true);
     private final BooleanSetting arrayList = new BooleanSetting("ArrayList", "Show enabled modules", true);
     private final BooleanSetting coords = new BooleanSetting("Coordinates", "Show your position", true);
     private final BooleanSetting fps = new BooleanSetting("FPS", "Show frames per second", true);
+    private final BooleanSetting direction = new BooleanSetting("Direction", "Show facing direction", true);
+    private final BooleanSetting ping = new BooleanSetting("Ping", "Show server latency", true);
 
     public HUD() {
-        super("HUD", "On-screen overlay (ArrayList, coords, FPS)", Category.RENDER);
-        addSettings(watermark, arrayList, coords, fps);
+        super("HUD", "On-screen overlay (ArrayList, coords, FPS, ping)", Category.RENDER);
+        addSettings(watermark, arrayList, coords, fps, direction, ping);
     }
 
     @Override
@@ -46,6 +49,17 @@ public class HUD extends Module {
                     mc.player.getX(), mc.player.getY(), mc.player.getZ());
             RenderUtil.text(g, pos, 3, bottom, GuiTheme.TEXT);
             bottom -= 10;
+        }
+        if (direction.get()) {
+            RenderUtil.text(g, "Facing: " + mc.player.getDirection().getName(), 3, bottom, GuiTheme.TEXT);
+            bottom -= 10;
+        }
+        if (ping.get() && mc.getConnection() != null) {
+            PlayerInfo info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
+            if (info != null) {
+                RenderUtil.text(g, info.getLatency() + " ms", 3, bottom, GuiTheme.TEXT);
+                bottom -= 10;
+            }
         }
         if (fps.get()) {
             RenderUtil.text(g, mc.getFps() + " FPS", 3, bottom, GuiTheme.TEXT);

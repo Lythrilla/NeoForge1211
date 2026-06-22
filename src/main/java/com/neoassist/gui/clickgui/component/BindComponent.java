@@ -69,6 +69,7 @@ public class BindComponent extends Component {
         } else {
             module.setKey(key);
         }
+        requestSave();
         listening = false;
         return true;
     }

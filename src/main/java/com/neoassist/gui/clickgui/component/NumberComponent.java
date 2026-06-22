@@ -60,7 +60,11 @@ public class NumberComponent extends Component {
         double pct = (mx - tl) / (double) (tr - tl);
         pct = Math.max(0, Math.min(1, pct));
         double value = setting.getMin() + (setting.getMax() - setting.getMin()) * pct;
+        double previous = setting.get();
         setting.set(value);
+        if (previous != setting.get()) {
+            requestSave();
+        }
     }
 
     @Override
