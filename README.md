@@ -25,10 +25,10 @@ ClickGUI, per-module keybinds, JSON config persistence, and a large set of survi
 |----------|---------|
 | Combat   | KillAura, AutoTotem, AutoClicker, AntiKnockback, Criticals, Reach, BowAimbot, TriggerBot, AutoShield |
 | Player   | AutoEat, AutoTool, AutoArmor, ChestStealer, FastPlace, AutoRespawn, AutoFish, NoFall |
-| Movement | AutoSprint, Step, Sneak, Spider, AutoWalk, HighJump, Flight, Jesus, NoSlow, Parkour |
+| Movement | AutoSprint, Step, Sneak, Spider, AutoWalk, HighJump, Flight, Jesus, NoSlow, Parkour, Speed |
 | World    | BlockESP (in-GUI block picker), Nuker, Scaffold, AutoReplant |
-| Render   | Fullbright, Zoom, HUD (ArrayList / coords / direction / ping / FPS), Tracers, EntityESP, NoHurtCam, Chams, StorageESP, Trajectories, NameTags |
-| Misc     | AntiAFK, AutoReconnect, Timer, FakeLag |
+| Render   | Fullbright, Zoom, HUD (ArrayList / coords / direction / ping / FPS), Tracers, EntityESP, NoHurtCam, Chams, StorageESP, Trajectories, NameTags, FreeCam |
+| Misc     | AntiAFK, AutoReconnect, Timer, FakeLag, AutoDisconnect |
 
 KillAura does not rotate the player camera; target selection is controlled by its
 `Selector`, `LockTarget`, `FOV`, visibility, type, charge, and wall-check settings.

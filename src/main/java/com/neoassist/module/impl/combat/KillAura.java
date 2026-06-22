@@ -69,6 +69,12 @@ public class KillAura extends Module {
     }
 
     @Override
+    public void onEnable() {
+        ticks = 0;
+        currentTarget = null;
+    }
+
+    @Override
     public void onDisable() {
         currentTarget = null;
     }

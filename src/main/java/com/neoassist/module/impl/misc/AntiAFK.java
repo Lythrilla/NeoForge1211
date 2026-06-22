@@ -17,6 +17,11 @@ public class AntiAFK extends Module {
     }
 
     @Override
+    public void onEnable() {
+        ticks = 0;
+    }
+
+    @Override
     public void onTick() {
         if (!inGame() || mc.screen != null) {
             return;

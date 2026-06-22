@@ -29,7 +29,7 @@ public class Scaffold extends Module {
         }
         for (Direction dir : Direction.values()) {
             BlockPos neighbor = target.relative(dir);
-            if (level().getBlockState(neighbor).isAir() || !level().getBlockState(neighbor).getFluidState().isEmpty()) {
+            if (level().getBlockState(neighbor).canBeReplaced()) {
                 continue;
             }
             Direction face = dir.getOpposite();

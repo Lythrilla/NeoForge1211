@@ -16,6 +16,7 @@ import com.neoassist.module.impl.combat.Reach;
 import com.neoassist.module.impl.combat.TriggerBot;
 import com.neoassist.module.impl.misc.AntiAFK;
 import com.neoassist.module.impl.misc.AutoReconnect;
+import com.neoassist.module.impl.misc.AutoDisconnect;
 import com.neoassist.module.impl.misc.FakeLag;
 import com.neoassist.module.impl.misc.TimerModule;
 import com.neoassist.module.impl.movement.AutoSprint;
@@ -25,6 +26,7 @@ import com.neoassist.module.impl.movement.HighJump;
 import com.neoassist.module.impl.movement.Jesus;
 import com.neoassist.module.impl.movement.NoSlow;
 import com.neoassist.module.impl.movement.Parkour;
+import com.neoassist.module.impl.movement.Speed;
 import com.neoassist.module.impl.movement.Sneak;
 import com.neoassist.module.impl.movement.Spider;
 import com.neoassist.module.impl.movement.Step;
@@ -38,6 +40,7 @@ import com.neoassist.module.impl.player.FastPlace;
 import com.neoassist.module.impl.player.NoFall;
 import com.neoassist.module.impl.render.BlockESP;
 import com.neoassist.module.impl.render.Chams;
+import com.neoassist.module.impl.render.FreeCam;
 import com.neoassist.module.impl.render.EntityESP;
 import com.neoassist.module.impl.render.Fullbright;
 import com.neoassist.module.impl.render.HUD;
@@ -94,14 +97,15 @@ public class NeoAssist {
                 new FastPlace(), new AutoRespawn(), new AutoFish(), new NoFall(),
                 // Movement
                 new AutoSprint(), new Step(), new Sneak(), new Spider(), new AutoWalk(), new HighJump(),
-                new Flight(), new Jesus(), new NoSlow(), new Parkour(),
+                new Flight(), new Jesus(), new NoSlow(), new Parkour(), new Speed(),
                 // World
                 new BlockESP(), new Nuker(), new Scaffold(), new AutoReplant(),
                 // Render
                 new Fullbright(), new Zoom(), new HUD(), new Tracers(), new EntityESP(), new NoHurtCam(),
-                new Chams(), new StorageESP(), new Trajectories(), new NameTags(),
+                new Chams(), new StorageESP(), new Trajectories(), new NameTags(), new FreeCam(),
                 // Misc
-                new AntiAFK(), new AutoReconnect(), new TimerModule(), new FakeLag());
+                new AntiAFK(), new AutoReconnect(), new TimerModule(), new FakeLag(),
+                new AutoDisconnect());
 
         // sensible default so the overlay is visible on first launch
         MODULES.getByName("HUD").setEnabled(true);
@@ -136,6 +140,7 @@ public class NeoAssist {
     }
 
     private void onClientTick(ClientTickEvent.Post event) {
+        MODULES.onTickAlways();
         if (Minecraft.getInstance().player != null) {
             MODULES.onTick();
         }

@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class Jesus extends Module {
     public Jesus() {
-        super("Jesus", "Walk on top of water", Category.MOVEMENT);
+        super("Jesus", "Walk on top of water and lava", Category.MOVEMENT);
     }
 
     @Override
@@ -15,7 +15,7 @@ public class Jesus extends Module {
         if (!inGame() || mc.screen != null) {
             return;
         }
-        if (player().isInWater() && !player().isShiftKeyDown()) {
+        if ((player().isInWater() || player().isInLava()) && !player().isShiftKeyDown()) {
             Vec3 m = player().getDeltaMovement();
             if (m.y < 0.11) {
                 player().setDeltaMovement(m.x, 0.11, m.z);

@@ -48,7 +48,7 @@ public class BowAimbot extends Module {
         double dist = Math.sqrt(dx * dx + dz * dz);
         double dy = center.y - eyes.y;
         double v = 3.0;
-        double g = 0.006;
+        double g = 0.05;
         double v2 = v * v;
         double root = v2 * v2 - g * (g * dist * dist + 2 * dy * v2);
         float pitch = rot[1];

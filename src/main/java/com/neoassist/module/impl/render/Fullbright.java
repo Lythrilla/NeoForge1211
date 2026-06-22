@@ -17,7 +17,7 @@ public class Fullbright extends Module {
 
     @Override
     public void onTick() {
-        mc.options.gamma().set(1.0);
+        mc.options.gamma().set(16.0);
     }
 
     @Override
