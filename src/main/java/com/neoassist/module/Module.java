@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.neoassist.NeoAssist;
 import com.neoassist.module.setting.Setting;
 
 import net.minecraft.client.Minecraft;
@@ -75,6 +76,7 @@ public abstract class Module {
         } else {
             onDisable();
         }
+        requestSave();
     }
 
     public void toggle() {
@@ -86,7 +88,11 @@ public abstract class Module {
     }
 
     public void setKey(int key) {
+        if (this.key == key) {
+            return;
+        }
         this.key = key;
+        requestSave();
     }
 
     public boolean isVisible() {
@@ -94,7 +100,11 @@ public abstract class Module {
     }
 
     public void setVisible(boolean visible) {
+        if (this.visible == visible) {
+            return;
+        }
         this.visible = visible;
+        requestSave();
     }
 
     public boolean isExpanded() {
@@ -102,7 +112,17 @@ public abstract class Module {
     }
 
     public void setExpanded(boolean expanded) {
+        if (this.expanded == expanded) {
+            return;
+        }
         this.expanded = expanded;
+        requestSave();
+    }
+
+    private void requestSave() {
+        if (NeoAssist.CONFIG != null) {
+            NeoAssist.CONFIG.requestSave();
+        }
     }
 
     // ---- lifecycle hooks ----

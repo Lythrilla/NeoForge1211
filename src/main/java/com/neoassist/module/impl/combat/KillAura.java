@@ -3,9 +3,11 @@ package com.neoassist.module.impl.combat;
 import com.neoassist.module.Category;
 import com.neoassist.module.Module;
 import com.neoassist.module.setting.BooleanSetting;
+import com.neoassist.module.setting.ModeSetting;
 import com.neoassist.module.setting.NumberSetting;
 import com.neoassist.util.RotationUtil;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,23 +18,35 @@ import net.minecraft.world.entity.player.Player;
 public class KillAura extends Module {
     private final NumberSetting range = new NumberSetting("Range", "Attack reach in blocks", 4.0, 2.0, 6.0, 0.1);
     private final NumberSetting delay = new NumberSetting("Delay", "Ticks between attacks", 2, 0, 20, 1);
+    private final ModeSetting selector = new ModeSetting("Selector", "Target selection priority", "Distance",
+            "Distance", "Health", "Angle");
+    private final BooleanSetting lockTarget = new BooleanSetting("LockTarget", "Keep attacking the same valid target", true);
+    private final NumberSetting fov = new NumberSetting("FOV", "Target cone in degrees; 360 targets all around", 180, 30, 360, 5);
     private final BooleanSetting targetPlayers = new BooleanSetting("Players", "Target other players", true);
     private final BooleanSetting targetMobs = new BooleanSetting("Hostiles", "Target hostile mobs", true);
     private final BooleanSetting targetAnimals = new BooleanSetting("Animals", "Target passive animals", false);
-    private final BooleanSetting rotate = new BooleanSetting("Rotate", "Snap rotation to the target", true);
+    private final BooleanSetting targetInvisible = new BooleanSetting("Invisibles", "Target invisible entities", false);
     private final BooleanSetting onlyCharged = new BooleanSetting("OnlyCharged", "Wait for full attack charge", true);
     private final BooleanSetting wallCheck = new BooleanSetting("WallCheck", "Require line of sight", true);
 
     private int ticks;
+    private Entity currentTarget;
 
     public KillAura() {
         super("KillAura", "Automatically attacks nearby entities", Category.COMBAT);
-        addSettings(range, delay, targetPlayers, targetMobs, targetAnimals, rotate, onlyCharged, wallCheck);
+        addSettings(range, delay, selector, lockTarget, fov, targetPlayers, targetMobs, targetAnimals,
+                targetInvisible, onlyCharged, wallCheck);
+    }
+
+    @Override
+    public String getInfo() {
+        return selector.get();
     }
 
     @Override
     public void onTick() {
-        if (!inGame()) {
+        if (!inGame() || mc.gameMode == null) {
+            currentTarget = null;
             return;
         }
         if (ticks > 0) {
@@ -45,13 +59,8 @@ public class KillAura extends Module {
 
         Entity target = findTarget();
         if (target == null) {
+            currentTarget = null;
             return;
-        }
-
-        if (rotate.get()) {
-            float[] rot = RotationUtil.getRotationsToEntity(player().getEyePosition(), target);
-            player().setYRot(rot[0]);
-            player().setXRot(rot[1]);
         }
 
         gameMode().attack(player(), target);
@@ -59,8 +68,16 @@ public class KillAura extends Module {
         ticks = delay.getInt();
     }
 
+    @Override
+    public void onDisable() {
+        currentTarget = null;
+    }
+
     private boolean isValid(Entity entity) {
         if (!(entity instanceof LivingEntity living) || living == player() || !living.isAlive()) {
+            return false;
+        }
+        if (living.isInvisible() && !targetInvisible.get()) {
             return false;
         }
         if (living instanceof Player) {
@@ -77,24 +94,52 @@ public class KillAura extends Module {
 
     private Entity findTarget() {
         double maxRange = range.get();
+        if (lockTarget.get() && isSelectable(currentTarget, maxRange)) {
+            return currentTarget;
+        }
         Entity best = null;
-        double bestDist = maxRange;
+        double bestScore = Double.MAX_VALUE;
         for (Entity entity : level().entitiesForRendering()) {
-            if (!isValid(entity)) {
+            if (!isSelectable(entity, maxRange)) {
                 continue;
             }
-            double dist = player().distanceTo(entity);
-            if (dist > maxRange) {
-                continue;
-            }
-            if (wallCheck.get() && !player().hasLineOfSight(entity)) {
-                continue;
-            }
-            if (dist < bestDist) {
-                bestDist = dist;
+            double score = score(entity);
+            if (score < bestScore) {
+                bestScore = score;
                 best = entity;
             }
         }
+        currentTarget = best;
         return best;
+    }
+
+    private boolean isSelectable(Entity entity, double maxRange) {
+        if (entity == null || !isValid(entity)) {
+            return false;
+        }
+        if (player().distanceTo(entity) > maxRange) {
+            return false;
+        }
+        if (wallCheck.get() && !player().hasLineOfSight(entity)) {
+            return false;
+        }
+        return fov.getInt() >= 360 || angleTo(entity) <= fov.get() * 0.5;
+    }
+
+    private double score(Entity entity) {
+        if (selector.is("Health") && entity instanceof LivingEntity living) {
+            return living.getHealth() + living.getAbsorptionAmount();
+        }
+        if (selector.is("Angle")) {
+            return angleTo(entity);
+        }
+        return player().distanceToSqr(entity);
+    }
+
+    private double angleTo(Entity entity) {
+        float[] rot = RotationUtil.getRotationsToEntity(player().getEyePosition(), entity);
+        double yaw = Mth.abs(Mth.wrapDegrees(rot[0] - player().getYRot()));
+        double pitch = Mth.abs(Mth.wrapDegrees(rot[1] - player().getXRot()));
+        return Math.hypot(yaw, pitch);
     }
 }

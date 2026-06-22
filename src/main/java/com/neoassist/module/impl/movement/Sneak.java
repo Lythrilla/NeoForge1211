@@ -10,9 +10,7 @@ public class Sneak extends Module {
 
     @Override
     public void onTick() {
-        if (inGame() && mc.screen == null) {
-            mc.options.keyShift.setDown(true);
-        }
+        mc.options.keyShift.setDown(inGame() && mc.screen == null);
     }
 
     @Override

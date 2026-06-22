@@ -30,10 +30,12 @@ public class ModeComponent extends Component {
         }
         if (button == 0) {
             setting.cycle();
+            requestSave();
             return true;
         }
         if (button == 1) {
             setting.cyclePrev();
+            requestSave();
             return true;
         }
         return false;

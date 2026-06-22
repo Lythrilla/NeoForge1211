@@ -56,7 +56,7 @@ public class AutoEat extends Module {
     private void stop() {
         if (eating) {
             mc.options.keyUse.setDown(false);
-            if (previousSlot != -1) {
+            if (previousSlot != -1 && mc.player != null) {
                 player().getInventory().selected = previousSlot;
             }
         }

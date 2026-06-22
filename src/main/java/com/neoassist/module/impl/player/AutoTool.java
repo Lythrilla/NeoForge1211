@@ -23,6 +23,7 @@ public class AutoTool extends Module {
     @Override
     public void onTick() {
         if (!inGame() || mc.screen != null) {
+            restorePreviousSlot();
             return;
         }
 
@@ -42,11 +43,23 @@ public class AutoTool extends Module {
                     player().getInventory().selected = best;
                 }
             }
-        } else if (previousSlot != -1) {
-            if (switchBack.get()) {
-                player().getInventory().selected = previousSlot;
-            }
-            previousSlot = -1;
+        } else {
+            restorePreviousSlot();
         }
+    }
+
+    @Override
+    public void onDisable() {
+        restorePreviousSlot();
+    }
+
+    private void restorePreviousSlot() {
+        if (previousSlot == -1) {
+            return;
+        }
+        if (switchBack.get() && mc.player != null) {
+            player().getInventory().selected = previousSlot;
+        }
+        previousSlot = -1;
     }
 }

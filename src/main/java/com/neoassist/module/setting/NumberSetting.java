@@ -11,10 +11,10 @@ public class NumberSetting extends Setting {
 
     public NumberSetting(String name, String description, double defaultValue, double min, double max, double step) {
         super(name, description);
-        this.value = defaultValue;
         this.min = min;
         this.max = max;
         this.step = step;
+        set(defaultValue);
     }
 
     public double get() {

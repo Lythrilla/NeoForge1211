@@ -1,5 +1,7 @@
 package com.neoassist.gui.clickgui.component;
 
+import com.neoassist.NeoAssist;
+
 import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class Component {
@@ -20,6 +22,12 @@ public abstract class Component {
 
     protected boolean hovered(double mx, double my) {
         return mx >= x && mx <= x + width && my >= y && my <= y + height;
+    }
+
+    protected void requestSave() {
+        if (NeoAssist.CONFIG != null) {
+            NeoAssist.CONFIG.requestSave();
+        }
     }
 
     public abstract void render(GuiGraphics graphics, int mouseX, int mouseY);

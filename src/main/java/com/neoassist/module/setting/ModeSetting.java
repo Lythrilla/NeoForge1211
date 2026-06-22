@@ -12,7 +12,7 @@ public class ModeSetting extends Setting {
 
     public ModeSetting(String name, String description, String defaultMode, String... modes) {
         super(name, description);
-        this.modes = Arrays.asList(modes);
+        this.modes = modes.length == 0 ? List.of(defaultMode) : Arrays.asList(modes);
         this.index = Math.max(0, this.modes.indexOf(defaultMode));
     }
 

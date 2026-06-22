@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.neoassist.NeoAssist;
 import com.neoassist.gui.GuiTheme;
 import com.neoassist.module.setting.BlockListSetting;
 import com.neoassist.util.RenderUtil;
@@ -28,6 +29,8 @@ public class BlockSelectScreen extends Screen {
     private double scroll;
 
     private static final int ROW_H = 18;
+    private static final int BUTTON_W = 58;
+    private static final int BUTTON_H = 16;
 
     public BlockSelectScreen(BlockListSetting setting, Screen parent) {
         super(Component.literal("Select Blocks"));
@@ -49,6 +52,24 @@ public class BlockSelectScreen extends Screen {
 
     private int listBottom() {
         return height - 24;
+    }
+
+    private int selectButtonLeft() {
+        return listRight() - BUTTON_W * 2 - 6;
+    }
+
+    private int clearButtonLeft() {
+        return listRight() - BUTTON_W;
+    }
+
+    private boolean onButton(double mx, double my, int left) {
+        return mx >= left && mx <= left + BUTTON_W && my >= 10 && my <= 10 + BUTTON_H;
+    }
+
+    private void requestSave() {
+        if (NeoAssist.CONFIG != null) {
+            NeoAssist.CONFIG.requestSave();
+        }
     }
 
     @Override
@@ -94,6 +115,8 @@ public class BlockSelectScreen extends Screen {
         super.render(g, mouseX, mouseY, partial);
 
         g.drawString(font, "Select Blocks  (" + setting.size() + " selected)", listLeft(), 14, GuiTheme.TEXT, true);
+        drawButton(g, selectButtonLeft(), 10, "Add shown", mouseX, mouseY);
+        drawButton(g, clearButtonLeft(), 10, "Clear", mouseX, mouseY);
 
         int top = listTop();
         int bottom = listBottom();
@@ -117,15 +140,37 @@ public class BlockSelectScreen extends Screen {
         }
         g.disableScissor();
 
-        g.drawString(font, "Click a block to toggle  |  ESC to go back", listLeft(), height - 16, GuiTheme.TEXT_DIM, false);
+        g.drawString(font, "Click a block to toggle  |  Add shown uses the current search  |  ESC to go back",
+                listLeft(), height - 16, GuiTheme.TEXT_DIM, false);
+    }
+
+    private void drawButton(GuiGraphics g, int left, int top, String label, int mouseX, int mouseY) {
+        boolean hover = mouseX >= left && mouseX <= left + BUTTON_W && mouseY >= top && mouseY <= top + BUTTON_H;
+        RenderUtil.rect(g, left, top, left + BUTTON_W, top + BUTTON_H,
+                hover ? GuiTheme.MODULE_BG_HOVER : GuiTheme.MODULE_BG);
+        RenderUtil.outline(g, left, top, left + BUTTON_W, top + BUTTON_H, GuiTheme.PANEL_BORDER);
+        g.drawString(font, label, left + (BUTTON_W - font.width(label)) / 2, top + 4, GuiTheme.TEXT, false);
     }
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
+        if (button == 0 && onButton(mx, my, selectButtonLeft())) {
+            for (Block block : filtered) {
+                setting.add(block);
+            }
+            requestSave();
+            return true;
+        }
+        if (button == 0 && onButton(mx, my, clearButtonLeft())) {
+            setting.clear();
+            requestSave();
+            return true;
+        }
         if (button == 0 && mx >= listLeft() && mx <= listRight() && my >= listTop() && my <= listBottom()) {
             int index = (int) ((my - listTop() + scroll) / ROW_H);
             if (index >= 0 && index < filtered.size()) {
                 setting.toggle(filtered.get(index));
+                requestSave();
                 return true;
             }
         }

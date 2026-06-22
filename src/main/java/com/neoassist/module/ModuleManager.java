@@ -76,7 +76,11 @@ public class ModuleManager {
     public void onRender2D(GuiGraphics graphics, float partial) {
         for (Module m : modules) {
             if (m.isEnabled()) {
-                m.onRender2D(graphics, partial);
+                try {
+                    m.onRender2D(graphics, partial);
+                } catch (Exception e) {
+                    NeoAssist.LOGGER.error("Error rendering module {}", m.getName(), e);
+                }
             }
         }
     }
@@ -84,7 +88,11 @@ public class ModuleManager {
     public void onWorldRender(PoseStack poseStack, MultiBufferSource.BufferSource buffer, Vec3 cameraPos, float partial) {
         for (Module m : modules) {
             if (m.isEnabled()) {
-                m.onWorldRender(poseStack, buffer, cameraPos, partial);
+                try {
+                    m.onWorldRender(poseStack, buffer, cameraPos, partial);
+                } catch (Exception e) {
+                    NeoAssist.LOGGER.error("Error world-rendering module {}", m.getName(), e);
+                }
             }
         }
     }
@@ -92,7 +100,11 @@ public class ModuleManager {
     public void onFov(ComputeFovModifierEvent event) {
         for (Module m : modules) {
             if (m.isEnabled()) {
-                m.onFov(event);
+                try {
+                    m.onFov(event);
+                } catch (Exception e) {
+                    NeoAssist.LOGGER.error("Error applying FOV module {}", m.getName(), e);
+                }
             }
         }
     }
@@ -100,7 +112,11 @@ public class ModuleManager {
     public void onAttack(net.minecraft.world.entity.Entity target) {
         for (Module m : modules) {
             if (m.isEnabled()) {
-                m.onAttack(target);
+                try {
+                    m.onAttack(target);
+                } catch (Exception e) {
+                    NeoAssist.LOGGER.error("Error handling attack module {}", m.getName(), e);
+                }
             }
         }
     }
