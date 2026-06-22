@@ -1,15 +1,19 @@
 package com.neoassist.util;
 
 import java.awt.Color;
+import java.util.OptionalDouble;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.AABB;
 
@@ -70,7 +74,7 @@ public final class RenderUtil {
         float r = ((argb >> 16) & 0xFF) / 255.0F;
         float g = ((argb >> 8) & 0xFF) / 255.0F;
         float b = (argb & 0xFF) / 255.0F;
-        VertexConsumer vc = buffer.getBuffer(RenderType.debugQuads());
+        VertexConsumer vc = buffer.getBuffer(ESP_QUADS);
         var matrix = poseStack.last().pose();
         float x1 = (float) box.minX, y1 = (float) box.minY, z1 = (float) box.minZ;
         float x2 = (float) box.maxX, y2 = (float) box.maxY, z2 = (float) box.maxZ;
@@ -106,9 +110,46 @@ public final class RenderUtil {
         vc.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
     }
 
+    // ---- no-depth RenderTypes for ESP (render through blocks) ----
+    private static final RenderType ESP_LINES = RenderType.create(
+            "neoassist_esp_lines",
+            DefaultVertexFormat.POSITION_COLOR_NORMAL,
+            VertexFormat.Mode.LINES,
+            1536,
+            RenderType.CompositeState.builder()
+                    .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
+                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2.0)))
+                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
+                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
+                    .createCompositeState(false));
+
+    private static final RenderType ESP_QUADS = RenderType.create(
+            "neoassist_esp_quads",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS,
+            1536,
+            RenderType.CompositeState.builder()
+                    .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
+                    .createCompositeState(false));
+
+    public static RenderType espLines() {
+        return ESP_LINES;
+    }
+
+    public static RenderType espQuads() {
+        return ESP_QUADS;
+    }
+
     /** Draws a wireframe box. Coordinates must already be relative to the camera. */
     public static void drawBox(PoseStack poseStack, MultiBufferSource.BufferSource buffer, AABB box, int argb) {
-        VertexConsumer vc = buffer.getBuffer(RenderType.lines());
+        VertexConsumer vc = buffer.getBuffer(ESP_LINES);
         float a = ((argb >> 24) & 0xFF) / 255.0F;
         float r = ((argb >> 16) & 0xFF) / 255.0F;
         float g = ((argb >> 8) & 0xFF) / 255.0F;
@@ -119,7 +160,7 @@ public final class RenderUtil {
     /** Draws a single line between two camera-relative points. */
     public static void drawLine(PoseStack poseStack, MultiBufferSource.BufferSource buffer,
             double x1, double y1, double z1, double x2, double y2, double z2, int argb) {
-        VertexConsumer vc = buffer.getBuffer(RenderType.lines());
+        VertexConsumer vc = buffer.getBuffer(ESP_LINES);
         float a = ((argb >> 24) & 0xFF) / 255.0F;
         float r = ((argb >> 16) & 0xFF) / 255.0F;
         float g = ((argb >> 8) & 0xFF) / 255.0F;

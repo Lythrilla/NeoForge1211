@@ -7,6 +7,7 @@ import com.neoassist.gui.clickgui.ClickGuiScreen;
 import com.neoassist.module.ModuleManager;
 import com.neoassist.module.impl.combat.AntiKnockback;
 import com.neoassist.module.impl.combat.AutoClicker;
+import com.neoassist.module.impl.combat.AutoGapple;
 import com.neoassist.module.impl.combat.AutoShield;
 import com.neoassist.module.impl.combat.AutoTotem;
 import com.neoassist.module.impl.combat.BowAimbot;
@@ -18,6 +19,7 @@ import com.neoassist.module.impl.misc.AntiAFK;
 import com.neoassist.module.impl.misc.AutoReconnect;
 import com.neoassist.module.impl.misc.AutoDisconnect;
 import com.neoassist.module.impl.misc.FakeLag;
+import com.neoassist.module.impl.misc.MiddleClickFriend;
 import com.neoassist.module.impl.misc.TimerModule;
 import com.neoassist.module.impl.movement.AutoSprint;
 import com.neoassist.module.impl.movement.AutoWalk;
@@ -36,6 +38,7 @@ import com.neoassist.module.impl.player.AutoFish;
 import com.neoassist.module.impl.player.AutoRespawn;
 import com.neoassist.module.impl.player.AutoTool;
 import com.neoassist.module.impl.player.ChestStealer;
+import com.neoassist.module.impl.player.FastBreak;
 import com.neoassist.module.impl.player.FastPlace;
 import com.neoassist.module.impl.player.NoFall;
 import com.neoassist.module.impl.render.BlockESP;
@@ -47,8 +50,10 @@ import com.neoassist.module.impl.render.HUD;
 import com.neoassist.module.impl.render.NameTags;
 import com.neoassist.module.impl.render.NoHurtCam;
 import com.neoassist.module.impl.render.StorageESP;
+import com.neoassist.module.impl.render.TargetHUD;
 import com.neoassist.module.impl.render.Tracers;
 import com.neoassist.module.impl.render.Trajectories;
+import com.neoassist.module.impl.render.Waypoints;
 import com.neoassist.module.impl.render.Zoom;
 import com.neoassist.module.impl.world.AutoReplant;
 import com.neoassist.module.impl.world.Nuker;
@@ -92,9 +97,10 @@ public class NeoAssist {
                 // Combat
                 new KillAura(), new AutoTotem(), new AutoClicker(), new AntiKnockback(),
                 new Criticals(), new Reach(), new BowAimbot(), new TriggerBot(), new AutoShield(),
+                new AutoGapple(),
                 // Player
                 new AutoEat(), new AutoTool(), new AutoArmor(), new ChestStealer(),
-                new FastPlace(), new AutoRespawn(), new AutoFish(), new NoFall(),
+                new FastPlace(), new FastBreak(), new AutoRespawn(), new AutoFish(), new NoFall(),
                 // Movement
                 new AutoSprint(), new Step(), new Sneak(), new Spider(), new AutoWalk(), new HighJump(),
                 new Flight(), new Jesus(), new NoSlow(), new Parkour(), new Speed(),
@@ -103,9 +109,10 @@ public class NeoAssist {
                 // Render
                 new Fullbright(), new Zoom(), new HUD(), new Tracers(), new EntityESP(), new NoHurtCam(),
                 new Chams(), new StorageESP(), new Trajectories(), new NameTags(), new FreeCam(),
+                new TargetHUD(), new Waypoints(),
                 // Misc
                 new AntiAFK(), new AutoReconnect(), new TimerModule(), new FakeLag(),
-                new AutoDisconnect());
+                new AutoDisconnect(), new MiddleClickFriend());
 
         // sensible default so the overlay is visible on first launch
         MODULES.getByName("HUD").setEnabled(true);
@@ -167,7 +174,8 @@ public class NeoAssist {
         float partial = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         MODULES.onWorldRender(poseStack, buffer, cameraPos, partial);
-        buffer.endBatch(RenderType.debugQuads());
+        buffer.endBatch(com.neoassist.util.RenderUtil.espQuads());
+        buffer.endBatch(com.neoassist.util.RenderUtil.espLines());
         buffer.endBatch(RenderType.lines());
     }
 

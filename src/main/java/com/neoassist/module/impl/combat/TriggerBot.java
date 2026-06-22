@@ -5,6 +5,8 @@ import com.neoassist.module.Module;
 import com.neoassist.module.setting.BooleanSetting;
 import com.neoassist.module.setting.NumberSetting;
 
+import com.neoassist.module.impl.misc.MiddleClickFriend;
+
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -62,7 +64,10 @@ public class TriggerBot extends Module {
         if (!(entity instanceof LivingEntity living) || living == player() || !living.isAlive()) {
             return false;
         }
-        if (living instanceof Player) {
+        if (living instanceof Player p) {
+            if (MiddleClickFriend.isFriend(p.getGameProfile().getName())) {
+                return false;
+            }
             return targetPlayers.get();
         }
         if (living instanceof Enemy) {
