@@ -54,6 +54,14 @@ public class BlockListSetting extends Setting {
         ids.add(BuiltInRegistries.BLOCK.getKey(block).toString());
     }
 
+    public void remove(Block block) {
+        ids.remove(BuiltInRegistries.BLOCK.getKey(block).toString());
+    }
+
+    public boolean containsId(String id) {
+        return ids.contains(id);
+    }
+
     public void clear() {
         ids.clear();
     }

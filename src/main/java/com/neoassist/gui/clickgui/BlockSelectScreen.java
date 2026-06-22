@@ -20,17 +20,44 @@ import net.minecraft.world.level.block.Blocks;
 
 /** Searchable block picker used to populate a {@link BlockListSetting} (e.g. Block ESP targets). */
 public class BlockSelectScreen extends Screen {
+    /**
+     * Immutable, pre-computed view of a registry block. Building this once avoids resolving
+     * translatable names and registry keys on every keystroke/frame, which is what made the
+     * picker unusable with hundreds of mods installed.
+     */
+    private static final class Entry {
+        final Block block;
+        final String id;
+        final String name;
+        final String searchText;
+        final ItemStack stack;
+
+        Entry(Block block, String id, String name) {
+            this.block = block;
+            this.id = id;
+            this.name = name;
+            this.searchText = (id + ' ' + name).toLowerCase(Locale.ROOT);
+            this.stack = new ItemStack(block);
+        }
+    }
+
+    /** Registry snapshot shared across all picker instances; built lazily on first open. */
+    private static List<Entry> registryCache;
+
     private final BlockListSetting setting;
     private final Screen parent;
 
     private EditBox search;
-    private final List<Block> all = new ArrayList<>();
-    private final List<Block> filtered = new ArrayList<>();
+    private final List<Entry> shown = new ArrayList<>();
+    private final String[] queryTokens = new String[8];
+    private int tokenCount;
+    private boolean selectedOnly;
     private double scroll;
 
     private static final int ROW_H = 18;
-    private static final int BUTTON_W = 58;
+    private static final int GAP = 4;
     private static final int BUTTON_H = 16;
+    private static final int LIST_HALF = 130;
 
     public BlockSelectScreen(BlockListSetting setting, Screen parent) {
         super(Component.literal("Select Blocks"));
@@ -39,31 +66,36 @@ public class BlockSelectScreen extends Screen {
     }
 
     private int listLeft() {
-        return width / 2 - 130;
+        return width / 2 - LIST_HALF;
     }
 
     private int listRight() {
-        return width / 2 + 130;
+        return width / 2 + LIST_HALF;
     }
 
     private int listTop() {
-        return 56;
+        return 72;
     }
 
     private int listBottom() {
         return height - 24;
     }
 
-    private int selectButtonLeft() {
-        return listRight() - BUTTON_W * 2 - 6;
+    private int buttonsTop() {
+        return 50;
     }
 
-    private int clearButtonLeft() {
-        return listRight() - BUTTON_W;
+    private int buttonWidth() {
+        return (LIST_HALF * 2 - GAP * 3) / 4;
     }
 
-    private boolean onButton(double mx, double my, int left) {
-        return mx >= left && mx <= left + BUTTON_W && my >= 10 && my <= 10 + BUTTON_H;
+    private int buttonX(int index) {
+        return listLeft() + index * (buttonWidth() + GAP);
+    }
+
+    private boolean onButton(double mx, double my, int index) {
+        int left = buttonX(index);
+        return mx >= left && mx <= left + buttonWidth() && my >= buttonsTop() && my <= buttonsTop() + BUTTON_H;
     }
 
     private void requestSave() {
@@ -72,16 +104,28 @@ public class BlockSelectScreen extends Screen {
         }
     }
 
+    private static List<Entry> registry() {
+        if (registryCache == null) {
+            List<Entry> list = new ArrayList<>();
+            for (Block block : BuiltInRegistries.BLOCK) {
+                if (block == Blocks.AIR || block == Blocks.CAVE_AIR || block == Blocks.VOID_AIR) {
+                    continue;
+                }
+                String id = BuiltInRegistries.BLOCK.getKey(block).toString();
+                String name = block.getName().getString();
+                list.add(new Entry(block, id, name));
+            }
+            registryCache = list;
+        }
+        return registryCache;
+    }
+
     @Override
     protected void init() {
-        all.clear();
-        for (Block block : BuiltInRegistries.BLOCK) {
-            if (block != Blocks.AIR && block != Blocks.CAVE_AIR && block != Blocks.VOID_AIR) {
-                all.add(block);
-            }
-        }
-        search = new EditBox(font, width / 2 - 130, 30, 260, 18, Component.literal("Search"));
+        registry();
+        search = new EditBox(font, listLeft(), 28, LIST_HALF * 2, 18, Component.literal("Search"));
         search.setMaxLength(64);
+        search.setHint(Component.literal("Search by name or mod id (e.g. create:)"));
         search.setResponder(s -> refilter());
         addRenderableWidget(search);
         setInitialFocus(search);
@@ -89,21 +133,45 @@ public class BlockSelectScreen extends Screen {
     }
 
     private void refilter() {
-        String q = search == null ? "" : search.getValue().toLowerCase(Locale.ROOT).trim();
-        filtered.clear();
-        for (Block block : all) {
-            String id = BuiltInRegistries.BLOCK.getKey(block).getPath();
-            String name = block.getName().getString().toLowerCase(Locale.ROOT);
-            if (q.isEmpty() || id.contains(q) || name.contains(q)) {
-                filtered.add(block);
+        tokenCount = 0;
+        if (search != null) {
+            String q = search.getValue().toLowerCase(Locale.ROOT).trim();
+            if (!q.isEmpty()) {
+                for (String token : q.split("\\s+")) {
+                    if (!token.isEmpty() && tokenCount < queryTokens.length) {
+                        queryTokens[tokenCount++] = token;
+                    }
+                }
             }
         }
-        scroll = 0;
+        shown.clear();
+        for (Entry entry : registry()) {
+            if (selectedOnly && !setting.containsId(entry.id)) {
+                continue;
+            }
+            if (matches(entry)) {
+                shown.add(entry);
+            }
+        }
+        clampScroll();
+    }
+
+    private boolean matches(Entry entry) {
+        for (int i = 0; i < tokenCount; i++) {
+            if (!entry.searchText.contains(queryTokens[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void clampScroll() {
+        scroll = Math.max(0, Math.min(maxScroll(), scroll));
     }
 
     private int maxScroll() {
         int visible = listBottom() - listTop();
-        return Math.max(0, filtered.size() * ROW_H - visible);
+        return Math.max(0, shown.size() * ROW_H - visible);
     }
 
     @Override
@@ -114,63 +182,99 @@ public class BlockSelectScreen extends Screen {
 
         super.render(g, mouseX, mouseY, partial);
 
-        g.drawString(font, "Select Blocks  (" + setting.size() + " selected)", listLeft(), 14, GuiTheme.TEXT, true);
-        drawButton(g, selectButtonLeft(), 10, "Add shown", mouseX, mouseY);
-        drawButton(g, clearButtonLeft(), 10, "Clear", mouseX, mouseY);
+        g.drawString(font, "Select Blocks  (" + setting.size() + " selected, " + shown.size() + " shown)",
+                listLeft(), 14, GuiTheme.TEXT, true);
+
+        drawButton(g, 0, "Add shown", mouseX, mouseY, false);
+        drawButton(g, 1, "Remove", mouseX, mouseY, false);
+        drawButton(g, 2, "Selected", mouseX, mouseY, selectedOnly);
+        drawButton(g, 3, "Clear", mouseX, mouseY, false);
 
         int top = listTop();
         int bottom = listBottom();
         g.enableScissor(listLeft(), top, listRight(), bottom);
-        int y = top - (int) scroll;
-        for (Block block : filtered) {
-            if (y + ROW_H >= top && y <= bottom) {
-                boolean hover = mouseX >= listLeft() && mouseX <= listRight() && mouseY >= y && mouseY <= y + ROW_H;
-                boolean selected = setting.contains(block);
-                int bg = selected ? RenderUtil.withAlpha(GuiTheme.accent(), 90) : (hover ? GuiTheme.MODULE_BG_HOVER : GuiTheme.MODULE_BG);
-                RenderUtil.rect(g, listLeft(), y, listRight(), y + ROW_H, bg);
-                g.renderItem(new ItemStack(block), listLeft() + 2, y + 1);
-                String name = block.getName().getString();
-                g.drawString(font, name, listLeft() + 22, y + 5, GuiTheme.TEXT, false);
-                if (selected) {
-                    String tick = "\u2713";
-                    g.drawString(font, tick, listRight() - 14, y + 5, GuiTheme.accent(), false);
-                }
+        int first = Math.max(0, (int) (scroll / ROW_H));
+        int last = Math.min(shown.size(), (int) ((scroll + (bottom - top)) / ROW_H) + 1);
+        for (int i = first; i < last; i++) {
+            Entry entry = shown.get(i);
+            int y = top - (int) scroll + i * ROW_H;
+            boolean hover = mouseX >= listLeft() && mouseX <= listRight() && mouseY >= y && mouseY <= y + ROW_H;
+            boolean selected = setting.containsId(entry.id);
+            int bg = selected ? RenderUtil.withAlpha(GuiTheme.accent(), 90)
+                    : (hover ? GuiTheme.MODULE_BG_HOVER : GuiTheme.MODULE_BG);
+            RenderUtil.rect(g, listLeft(), y, listRight(), y + ROW_H, bg);
+            g.renderItem(entry.stack, listLeft() + 2, y + 1);
+            g.drawString(font, entry.name, listLeft() + 22, y + 5, GuiTheme.TEXT, false);
+            if (selected) {
+                g.drawString(font, "\u2713", listRight() - 14, y + 5, GuiTheme.accent(), false);
             }
-            y += ROW_H;
         }
         g.disableScissor();
 
-        g.drawString(font, "Click a block to toggle  |  Add shown uses the current search  |  ESC to go back",
+        if (shown.isEmpty()) {
+            String empty = selectedOnly ? "No selected blocks match the search" : "No blocks match the search";
+            g.drawString(font, empty, listLeft(), top + 6, GuiTheme.TEXT_DIM, false);
+        }
+
+        g.drawString(font, "Click a block to toggle  |  Add/Remove act on shown results  |  ESC to go back",
                 listLeft(), height - 16, GuiTheme.TEXT_DIM, false);
     }
 
-    private void drawButton(GuiGraphics g, int left, int top, String label, int mouseX, int mouseY) {
-        boolean hover = mouseX >= left && mouseX <= left + BUTTON_W && mouseY >= top && mouseY <= top + BUTTON_H;
-        RenderUtil.rect(g, left, top, left + BUTTON_W, top + BUTTON_H,
-                hover ? GuiTheme.MODULE_BG_HOVER : GuiTheme.MODULE_BG);
-        RenderUtil.outline(g, left, top, left + BUTTON_W, top + BUTTON_H, GuiTheme.PANEL_BORDER);
-        g.drawString(font, label, left + (BUTTON_W - font.width(label)) / 2, top + 4, GuiTheme.TEXT, false);
+    private void drawButton(GuiGraphics g, int index, String label, int mouseX, int mouseY, boolean active) {
+        int left = buttonX(index);
+        int top = buttonsTop();
+        int w = buttonWidth();
+        boolean hover = mouseX >= left && mouseX <= left + w && mouseY >= top && mouseY <= top + BUTTON_H;
+        int bg = active ? RenderUtil.withAlpha(GuiTheme.accent(), 90)
+                : (hover ? GuiTheme.MODULE_BG_HOVER : GuiTheme.MODULE_BG);
+        RenderUtil.rect(g, left, top, left + w, top + BUTTON_H, bg);
+        RenderUtil.outline(g, left, top, left + w, top + BUTTON_H, GuiTheme.PANEL_BORDER);
+        g.drawString(font, label, left + (w - font.width(label)) / 2, top + 4, GuiTheme.TEXT, false);
     }
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
-        if (button == 0 && onButton(mx, my, selectButtonLeft())) {
-            for (Block block : filtered) {
-                setting.add(block);
+        if (button == 0 && onButton(mx, my, 0)) {
+            for (Entry entry : shown) {
+                setting.add(entry.block);
             }
             requestSave();
+            if (selectedOnly) {
+                refilter();
+            }
             return true;
         }
-        if (button == 0 && onButton(mx, my, clearButtonLeft())) {
+        if (button == 0 && onButton(mx, my, 1)) {
+            for (Entry entry : shown) {
+                setting.remove(entry.block);
+            }
+            requestSave();
+            refilter();
+            return true;
+        }
+        if (button == 0 && onButton(mx, my, 2)) {
+            selectedOnly = !selectedOnly;
+            scroll = 0;
+            refilter();
+            return true;
+        }
+        if (button == 0 && onButton(mx, my, 3)) {
             setting.clear();
             requestSave();
+            if (selectedOnly) {
+                refilter();
+            }
             return true;
         }
         if (button == 0 && mx >= listLeft() && mx <= listRight() && my >= listTop() && my <= listBottom()) {
             int index = (int) ((my - listTop() + scroll) / ROW_H);
-            if (index >= 0 && index < filtered.size()) {
-                setting.toggle(filtered.get(index));
+            if (index >= 0 && index < shown.size()) {
+                Entry entry = shown.get(index);
+                setting.toggle(entry.block);
                 requestSave();
+                if (selectedOnly) {
+                    refilter();
+                }
                 return true;
             }
         }
