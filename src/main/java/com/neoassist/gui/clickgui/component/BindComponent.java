@@ -64,12 +64,15 @@ public class BindComponent extends Component {
         if (!listening) {
             return false;
         }
-        if (key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_DELETE || key == GLFW.GLFW_KEY_BACKSPACE) {
+        if (key == GLFW.GLFW_KEY_ESCAPE) {
+            listening = false;
+            return true;
+        }
+        if (key == GLFW.GLFW_KEY_DELETE || key == GLFW.GLFW_KEY_BACKSPACE) {
             module.setKey(GLFW.GLFW_KEY_UNKNOWN);
         } else {
             module.setKey(key);
         }
-        requestSave();
         listening = false;
         return true;
     }

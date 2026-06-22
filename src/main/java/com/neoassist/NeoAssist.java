@@ -120,6 +120,12 @@ public class NeoAssist {
         NeoForge.EVENT_BUS.addListener(this::onFov);
         NeoForge.EVENT_BUS.addListener(this::onAttack);
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (CONFIG != null) {
+                CONFIG.flushIfDirty();
+            }
+        }, "NeoAssist-ConfigSave"));
+
         LOGGER.info("{} loaded {} modules", NAME, MODULES.getModules().size());
     }
 
