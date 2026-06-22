@@ -14,6 +14,7 @@ ClickGUI, per-module keybinds, JSON config persistence, and a large set of survi
 
 - Drag a category panel by its header; right-click the header to collapse it.
 - Left-click a module to toggle, right-click to expand its settings.
+- Use **Show in HUD** on expanded modules to hide noisy modules from the ArrayList.
 - Setting types: toggle, slider, mode dropdown, RGBA color picker, key bind, and a **block selector**.
 - **Block ESP** targets are chosen entirely in the GUI via a searchable block list
   (open `World > BlockESP > Blocks > Edit`); use **Add shown** to bulk-add search results.

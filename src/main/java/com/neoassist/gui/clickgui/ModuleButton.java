@@ -11,6 +11,7 @@ import com.neoassist.gui.clickgui.component.ColorComponent;
 import com.neoassist.gui.clickgui.component.Component;
 import com.neoassist.gui.clickgui.component.ModeComponent;
 import com.neoassist.gui.clickgui.component.NumberComponent;
+import com.neoassist.gui.clickgui.component.VisibilityComponent;
 import com.neoassist.module.Module;
 import com.neoassist.module.setting.BlockListSetting;
 import com.neoassist.module.setting.BooleanSetting;
@@ -34,6 +35,7 @@ public class ModuleButton {
     public ModuleButton(Module module) {
         this.module = module;
         components.add(new BindComponent(module));
+        components.add(new VisibilityComponent(module));
         for (Setting setting : module.getSettings()) {
             Component c = create(setting);
             if (c != null) {
@@ -75,11 +77,10 @@ public class ModuleButton {
         List<Component> list = new ArrayList<>();
         int i = 0;
         for (Component c : components) {
-            // first component is the bind button (always visible); the rest follow setting visibility
-            if (i == 0) {
+            if (i < fixedComponentCount()) {
                 list.add(c);
             } else {
-                Setting s = module.getSettings().get(i - 1);
+                Setting s = module.getSettings().get(i - fixedComponentCount());
                 if (s.isVisible()) {
                     list.add(c);
                 }
@@ -87,6 +88,10 @@ public class ModuleButton {
             i++;
         }
         return list;
+    }
+
+    private int fixedComponentCount() {
+        return 2;
     }
 
     public void setPosition(int x, int y, int width) {

@@ -2,6 +2,7 @@ package com.neoassist.module.impl.player;
 
 import com.neoassist.module.Category;
 import com.neoassist.module.Module;
+import com.neoassist.module.setting.BooleanSetting;
 import com.neoassist.module.setting.NumberSetting;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -13,12 +14,13 @@ import net.minecraft.world.inventory.Slot;
 
 public class ChestStealer extends Module {
     private final NumberSetting delay = new NumberSetting("Delay", "Ticks between each transferred stack", 1, 0, 10, 1);
+    private final BooleanSetting closeWhenDone = new BooleanSetting("CloseWhenDone", "Close the container after looting it", false);
 
     private int ticks;
 
     public ChestStealer() {
         super("ChestStealer", "Quickly moves all items from an open container", Category.PLAYER);
-        addSettings(delay);
+        addSettings(delay, closeWhenDone);
     }
 
     @Override
@@ -37,12 +39,16 @@ public class ChestStealer extends Module {
         }
 
         AbstractContainerMenu menu = screen.getMenu();
-        for (Slot slot : menu.slots) {
+        for (int slotId = 0; slotId < menu.slots.size(); slotId++) {
+            Slot slot = menu.getSlot(slotId);
             if (slot.container != player().getInventory() && slot.hasItem()) {
-                gameMode().handleInventoryMouseClick(menu.containerId, slot.index, 0, ClickType.QUICK_MOVE, player());
+                gameMode().handleInventoryMouseClick(menu.containerId, slotId, 0, ClickType.QUICK_MOVE, player());
                 ticks = delay.getInt();
                 return;
             }
+        }
+        if (closeWhenDone.get()) {
+            player().closeContainer();
         }
     }
 }

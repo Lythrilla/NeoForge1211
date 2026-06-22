@@ -10,6 +10,7 @@ import com.google.gson.JsonPrimitive;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -69,10 +70,18 @@ public class BlockListSetting extends Setting {
     @Override
     public void load(JsonElement element) {
         if (element != null && element.isJsonArray()) {
+            Set<String> loaded = new LinkedHashSet<>();
             ids.clear();
             for (JsonElement e : element.getAsJsonArray()) {
-                ids.add(e.getAsString());
+                if (!e.isJsonPrimitive()) {
+                    continue;
+                }
+                ResourceLocation id = ResourceLocation.tryParse(e.getAsString());
+                if (id != null && BuiltInRegistries.BLOCK.get(id) != Blocks.AIR) {
+                    loaded.add(id.toString());
+                }
             }
+            ids.addAll(loaded);
         }
     }
 }
