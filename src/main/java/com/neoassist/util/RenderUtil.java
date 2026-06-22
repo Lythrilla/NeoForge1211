@@ -64,6 +64,48 @@ public final class RenderUtil {
         return Minecraft.getInstance().font.lineHeight;
     }
 
+    /** Draws a semi-transparent filled box. Coordinates must already be relative to the camera. */
+    public static void drawFilledBox(PoseStack poseStack, MultiBufferSource.BufferSource buffer, AABB box, int argb) {
+        float a = ((argb >> 24) & 0xFF) / 255.0F * 0.4F;
+        float r = ((argb >> 16) & 0xFF) / 255.0F;
+        float g = ((argb >> 8) & 0xFF) / 255.0F;
+        float b = (argb & 0xFF) / 255.0F;
+        VertexConsumer vc = buffer.getBuffer(RenderType.debugQuads());
+        var matrix = poseStack.last().pose();
+        float x1 = (float) box.minX, y1 = (float) box.minY, z1 = (float) box.minZ;
+        float x2 = (float) box.maxX, y2 = (float) box.maxY, z2 = (float) box.maxZ;
+        // bottom
+        vc.addVertex(matrix, x1, y1, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y1, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x1, y1, z2).setColor(r, g, b, a);
+        // top
+        vc.addVertex(matrix, x1, y2, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x1, y2, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y2, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y2, z1).setColor(r, g, b, a);
+        // north (-Z)
+        vc.addVertex(matrix, x1, y1, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x1, y2, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y2, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y1, z1).setColor(r, g, b, a);
+        // south (+Z)
+        vc.addVertex(matrix, x1, y1, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y2, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x1, y2, z2).setColor(r, g, b, a);
+        // west (-X)
+        vc.addVertex(matrix, x1, y1, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x1, y1, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x1, y2, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x1, y2, z1).setColor(r, g, b, a);
+        // east (+X)
+        vc.addVertex(matrix, x2, y1, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y2, z1).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y2, z2).setColor(r, g, b, a);
+        vc.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
+    }
+
     /** Draws a wireframe box. Coordinates must already be relative to the camera. */
     public static void drawBox(PoseStack poseStack, MultiBufferSource.BufferSource buffer, AABB box, int argb) {
         VertexConsumer vc = buffer.getBuffer(RenderType.lines());

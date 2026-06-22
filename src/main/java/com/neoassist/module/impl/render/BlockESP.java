@@ -8,15 +8,18 @@ import com.neoassist.module.Category;
 import com.neoassist.module.Module;
 import com.neoassist.module.setting.BlockListSetting;
 import com.neoassist.module.setting.ColorSetting;
+import com.neoassist.module.setting.ModeSetting;
 import com.neoassist.module.setting.NumberSetting;
 import com.neoassist.util.RenderUtil;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class BlockESP extends Module {
+    private final ModeSetting mode = new ModeSetting("Mode", "Rendering style",
+            "Box", "Box", "Filled");
     private final NumberSetting radius = new NumberSetting("Radius", "Scan radius in blocks", 12, 4, 32, 1);
     private final ColorSetting color = new ColorSetting("Color", "Outline color", 0x9000FF7F);
     private final BlockListSetting blocks = new BlockListSetting("Blocks", "Blocks to highlight (edit in GUI)",
@@ -27,12 +30,12 @@ public class BlockESP extends Module {
 
     public BlockESP() {
         super("BlockESP", "Outlines selected blocks nearby (pick blocks in GUI)", Category.WORLD);
-        addSettings(radius, color, blocks);
+        addSettings(mode, radius, color, blocks);
     }
 
     @Override
     public String getInfo() {
-        return String.valueOf(blocks.size());
+        return mode.get() + " " + blocks.size();
     }
 
     @Override
@@ -76,9 +79,17 @@ public class BlockESP extends Module {
             return;
         }
         int argb = color.get();
-        for (BlockPos pos : found) {
-            AABB box = new AABB(pos).move(-cameraPos.x, -cameraPos.y, -cameraPos.z).deflate(0.002);
-            RenderUtil.drawBox(poseStack, buffer, box, argb);
+        if (mode.is("Filled")) {
+            for (BlockPos pos : found) {
+                AABB box = new AABB(pos).move(-cameraPos.x, -cameraPos.y, -cameraPos.z).deflate(0.002);
+                RenderUtil.drawFilledBox(poseStack, buffer, box, argb);
+                RenderUtil.drawBox(poseStack, buffer, box, argb);
+            }
+        } else {
+            for (BlockPos pos : found) {
+                AABB box = new AABB(pos).move(-cameraPos.x, -cameraPos.y, -cameraPos.z).deflate(0.002);
+                RenderUtil.drawBox(poseStack, buffer, box, argb);
+            }
         }
     }
 }

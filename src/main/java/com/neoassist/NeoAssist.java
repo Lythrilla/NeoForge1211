@@ -167,6 +167,7 @@ public class NeoAssist {
         float partial = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         MODULES.onWorldRender(poseStack, buffer, cameraPos, partial);
+        buffer.endBatch(RenderType.debugQuads());
         buffer.endBatch(RenderType.lines());
     }
 

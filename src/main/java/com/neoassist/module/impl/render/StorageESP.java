@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.neoassist.module.Category;
 import com.neoassist.module.Module;
 import com.neoassist.module.setting.ColorSetting;
+import com.neoassist.module.setting.ModeSetting;
 import com.neoassist.module.setting.NumberSetting;
 import com.neoassist.util.RenderUtil;
 
@@ -25,26 +26,51 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class StorageESP extends Module {
+    private final ModeSetting mode = new ModeSetting("Mode", "Rendering style",
+            "Box", "Box", "Filled");
     private final NumberSetting radius = new NumberSetting("Radius", "Scan radius in blocks", 16, 4, 48, 1);
-    private final ColorSetting color = new ColorSetting("Color", "Outline color", 0xA0FFC83C);
+    private final ColorSetting chestColor = new ColorSetting("ChestColor", "Chest/barrel color", 0xA0FFC83C);
+    private final ColorSetting enderColor = new ColorSetting("EnderColor", "Ender chest color", 0xA0CC33FF);
+    private final ColorSetting shulkerColor = new ColorSetting("ShulkerColor", "Shulker box color", 0xA0FF66AA);
+    private final ColorSetting otherColor = new ColorSetting("OtherColor", "Other container color", 0xA0AAAAAA);
+
+    private static final int TYPE_CHEST = 0;
+    private static final int TYPE_ENDER = 1;
+    private static final int TYPE_SHULKER = 2;
+    private static final int TYPE_OTHER = 3;
 
     private final List<BlockPos> found = new ArrayList<>();
+    private final List<Integer> types = new ArrayList<>();
     private int rescan;
 
     public StorageESP() {
         super("StorageESP", "Outlines nearby containers (chests, barrels, ...)", Category.RENDER);
-        addSettings(radius, color);
+        addSettings(mode, radius, chestColor, enderColor, shulkerColor, otherColor);
     }
 
-    private static boolean isContainer(Block block) {
-        return block instanceof ChestBlock
-                || block instanceof EnderChestBlock
-                || block instanceof BarrelBlock
-                || block instanceof ShulkerBoxBlock
-                || block instanceof HopperBlock
-                || block instanceof DispenserBlock
-                || block instanceof BrewingStandBlock
-                || block instanceof AbstractFurnaceBlock;
+    @Override
+    public String getInfo() {
+        return mode.get();
+    }
+
+    private static int containerType(Block block) {
+        if (block instanceof ChestBlock || block instanceof BarrelBlock) return TYPE_CHEST;
+        if (block instanceof EnderChestBlock) return TYPE_ENDER;
+        if (block instanceof ShulkerBoxBlock) return TYPE_SHULKER;
+        if (block instanceof HopperBlock || block instanceof DispenserBlock
+                || block instanceof BrewingStandBlock || block instanceof AbstractFurnaceBlock) {
+            return TYPE_OTHER;
+        }
+        return -1;
+    }
+
+    private int colorForType(int type) {
+        return switch (type) {
+            case TYPE_CHEST -> chestColor.get();
+            case TYPE_ENDER -> enderColor.get();
+            case TYPE_SHULKER -> shulkerColor.get();
+            default -> otherColor.get();
+        };
     }
 
     @Override
@@ -57,6 +83,7 @@ public class StorageESP extends Module {
         }
         rescan = 10;
         found.clear();
+        types.clear();
         int r = radius.getInt();
         BlockPos origin = player().blockPosition();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -64,8 +91,10 @@ public class StorageESP extends Module {
             for (int y = -r; y <= r; y++) {
                 for (int z = -r; z <= r; z++) {
                     pos.set(origin.getX() + x, origin.getY() + y, origin.getZ() + z);
-                    if (isContainer(level().getBlockState(pos).getBlock())) {
+                    int type = containerType(level().getBlockState(pos).getBlock());
+                    if (type >= 0) {
                         found.add(pos.immutable());
+                        types.add(type);
                         if (found.size() >= 2000) {
                             return;
                         }
@@ -80,9 +109,14 @@ public class StorageESP extends Module {
         if (found.isEmpty()) {
             return;
         }
-        int argb = color.get();
-        for (BlockPos pos : found) {
+        boolean filled = mode.is("Filled");
+        for (int i = 0; i < found.size(); i++) {
+            BlockPos pos = found.get(i);
+            int argb = colorForType(types.get(i));
             AABB box = new AABB(pos).move(-cameraPos.x, -cameraPos.y, -cameraPos.z).deflate(0.002);
+            if (filled) {
+                RenderUtil.drawFilledBox(poseStack, buffer, box, argb);
+            }
             RenderUtil.drawBox(poseStack, buffer, box, argb);
         }
     }
