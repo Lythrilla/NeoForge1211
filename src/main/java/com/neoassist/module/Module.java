@@ -124,6 +124,9 @@ public abstract class Module {
     public void onFov(ComputeFovModifierEvent event) {
     }
 
+    public void onAttack(net.minecraft.world.entity.Entity target) {
+    }
+
     // ---- convenience accessors (null-safe checks left to callers) ----
     protected LocalPlayer player() {
         return mc.player;

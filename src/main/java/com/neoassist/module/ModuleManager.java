@@ -96,4 +96,12 @@ public class ModuleManager {
             }
         }
     }
+
+    public void onAttack(net.minecraft.world.entity.Entity target) {
+        for (Module m : modules) {
+            if (m.isEnabled()) {
+                m.onAttack(target);
+            }
+        }
+    }
 }

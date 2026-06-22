@@ -22,12 +22,19 @@ ClickGUI, per-module keybinds, JSON config persistence, and a large set of survi
 
 | Category | Modules |
 |----------|---------|
-| Combat   | KillAura, AutoTotem, AutoClicker, AntiKnockback |
+| Combat   | KillAura, AutoTotem, AutoClicker, AntiKnockback, Criticals, Reach, BowAimbot |
 | Player   | AutoEat, AutoTool, AutoArmor, ChestStealer, FastPlace, AutoRespawn, AutoFish, NoFall |
-| Movement | AutoSprint, Step, Sneak, Spider, AutoWalk, HighJump |
-| World    | BlockESP (in-GUI block picker) |
-| Render   | Fullbright, Zoom, HUD (ArrayList / coords / FPS), Tracers, EntityESP, NoHurtCam |
-| Misc     | AntiAFK |
+| Movement | AutoSprint, Step, Sneak, Spider, AutoWalk, HighJump, Flight, Jesus, NoSlow |
+| World    | BlockESP (in-GUI block picker), Nuker, Scaffold, AutoReplant |
+| Render   | Fullbright, Zoom, HUD (ArrayList / coords / FPS), Tracers, EntityESP, NoHurtCam, Chams, StorageESP, Trajectories, NameTags |
+| Misc     | AntiAFK, AutoReconnect, Timer, FakeLag |
+
+## Compatibility
+
+Render features use NeoForge events (`RenderLevelStageEvent` / `RenderGuiEvent`) rather than
+rendering mixins, so they coexist with Sodium/Iris/Embeddium. Only NoSlow, Timer, NameTags and
+FakeLag use mixins; each is non-destructive (`@ModifyConstant` / `@Redirect` / `@Inject`), targets a
+stable vanilla class, has `defaultRequire = 0`, and is a complete no-op while its module is disabled.
 
 ## Building
 
