@@ -17,7 +17,10 @@ ClickGUI, per-module keybinds, JSON config persistence, and a large set of survi
 - Use **Show in HUD** on expanded modules to hide noisy modules from the ArrayList.
 - Setting types: toggle, slider, mode dropdown, RGBA color picker, key bind, and a **block selector**.
 - **Block ESP** targets are chosen entirely in the GUI via a searchable block list
-  (open `World > BlockESP > Blocks > Edit`); use **Add shown** to bulk-add search results.
+  (open `World > BlockESP > Blocks > Edit`). Search by block name or mod id (e.g. `create:`),
+  use **Add shown** / **Remove** to bulk-edit the current search results, and toggle
+  **Selected** to review just the blocks you've already picked. The picker caches the block
+  registry, so it stays responsive even with hundreds of mods installed.
 
 ## Modules
 
