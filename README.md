@@ -30,6 +30,9 @@ ClickGUI, per-module keybinds, JSON config persistence, and a large set of survi
 | Render   | Fullbright, Zoom, HUD (ArrayList / coords / direction / ping / FPS), Tracers, EntityESP, NoHurtCam, Chams, StorageESP, Trajectories, NameTags |
 | Misc     | AntiAFK, AutoReconnect, Timer, FakeLag |
 
+KillAura does not rotate the player camera; target selection is controlled by its
+`Selector`, `LockTarget`, `FOV`, visibility, type, charge, and wall-check settings.
+
 ## Compatibility
 
 Render features use NeoForge events (`RenderLevelStageEvent` / `RenderGuiEvent`) rather than
