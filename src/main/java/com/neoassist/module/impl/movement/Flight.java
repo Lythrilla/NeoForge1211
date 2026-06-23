@@ -13,6 +13,8 @@ public class Flight extends Module {
     private final NumberSetting speed = new NumberSetting("Speed", "Flight speed multiplier", 1.0, 0.5, 5.0, 0.1);
     private final NumberSetting glideSpeed = new NumberSetting("GlideSpeed", "Downward glide rate", 0.04, 0.01, 0.1, 0.01);
 
+    private boolean creativeApplied;
+
     public Flight() {
         super("Flight", "Fly in different modes (Velocity/Creative/Glide)", Category.MOVEMENT);
         glideSpeed.visibleWhen(() -> mode.is("Glide"));
@@ -30,9 +32,14 @@ public class Flight extends Module {
             return;
         }
         if (mode.is("Creative")) {
-            player().getAbilities().mayfly = true;
-            player().onUpdateAbilities();
+            applyCreative();
         }
+    }
+
+    private void applyCreative() {
+        player().getAbilities().mayfly = true;
+        player().onUpdateAbilities();
+        creativeApplied = true;
     }
 
     @Override
@@ -41,8 +48,16 @@ public class Flight extends Module {
             return;
         }
         if (mode.is("Creative")) {
+            if (!creativeApplied) {
+                applyCreative();
+            }
             tickCreative();
-        } else if (mode.is("Velocity")) {
+            return;
+        }
+        if (creativeApplied) {
+            restoreAbilities();
+        }
+        if (mode.is("Velocity")) {
             tickVelocity();
         } else if (mode.is("Glide")) {
             tickGlide();
@@ -96,17 +111,23 @@ public class Flight extends Module {
 
     @Override
     public void onDisable() {
+        if (creativeApplied) {
+            restoreAbilities();
+        }
+    }
+
+    /** Reverts the creative-fly abilities this module granted; safe to call in any mode. */
+    private void restoreAbilities() {
+        creativeApplied = false;
         if (mc.player == null) {
             return;
         }
-        if (mode.is("Creative")) {
-            boolean creative = player().isCreative();
-            player().getAbilities().flying = false;
-            if (!creative) {
-                player().getAbilities().mayfly = false;
-            }
-            player().getAbilities().setFlyingSpeed(0.05F);
-            player().onUpdateAbilities();
+        boolean creative = player().isCreative();
+        player().getAbilities().flying = false;
+        if (!creative) {
+            player().getAbilities().mayfly = false;
         }
+        player().getAbilities().setFlyingSpeed(0.05F);
+        player().onUpdateAbilities();
     }
 }

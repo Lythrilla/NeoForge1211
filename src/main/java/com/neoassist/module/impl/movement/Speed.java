@@ -16,6 +16,8 @@ public class Speed extends Module {
             "Attribute", "Attribute", "BunnyHop", "Strafe");
     private final NumberSetting speed = new NumberSetting("Speed", "Speed multiplier", 1.5, 1.0, 5.0, 0.1);
 
+    private boolean attributeApplied;
+
     public Speed() {
         super("Speed", "Increases your movement speed", Category.MOVEMENT);
         addSettings(mode, speed);
@@ -33,7 +35,12 @@ public class Speed extends Module {
         }
         if (mode.is("Attribute")) {
             tickAttribute();
-        } else if (mode.is("BunnyHop")) {
+            return;
+        }
+        if (attributeApplied) {
+            resetAttribute();
+        }
+        if (mode.is("BunnyHop")) {
             tickBunnyHop();
         } else if (mode.is("Strafe")) {
             tickStrafe();
@@ -44,6 +51,19 @@ public class Speed extends Module {
         AttributeInstance attr = player().getAttribute(Attributes.MOVEMENT_SPEED);
         if (attr != null) {
             attr.setBaseValue(DEFAULT_SPEED * speed.get());
+            attributeApplied = true;
+        }
+    }
+
+    /** Restores the vanilla base movement speed this module modified. */
+    private void resetAttribute() {
+        attributeApplied = false;
+        if (mc.player == null) {
+            return;
+        }
+        AttributeInstance attr = player().getAttribute(Attributes.MOVEMENT_SPEED);
+        if (attr != null) {
+            attr.setBaseValue(DEFAULT_SPEED);
         }
     }
 
@@ -89,14 +109,8 @@ public class Speed extends Module {
 
     @Override
     public void onDisable() {
-        if (mc.player == null) {
-            return;
-        }
-        if (mode.is("Attribute")) {
-            AttributeInstance attr = player().getAttribute(Attributes.MOVEMENT_SPEED);
-            if (attr != null) {
-                attr.setBaseValue(DEFAULT_SPEED);
-            }
+        if (attributeApplied) {
+            resetAttribute();
         }
     }
 }
