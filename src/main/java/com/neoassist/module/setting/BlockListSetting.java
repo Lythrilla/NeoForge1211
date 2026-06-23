@@ -1,5 +1,6 @@
 package com.neoassist.module.setting;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -18,6 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class BlockListSetting extends Setting {
     private final Set<String> ids = new LinkedHashSet<>();
+    /** Lazily resolved {@code id -> Block} view; rebuilt only when {@link #ids} changes. */
+    private Set<Block> resolved;
 
     public BlockListSetting(String name, String description, String... defaults) {
         super(name, description);
@@ -35,8 +38,31 @@ public class BlockListSetting extends Setting {
     }
 
     public boolean contains(Block block) {
-        ResourceLocation key = BuiltInRegistries.BLOCK.getKey(block);
-        return ids.contains(key.toString());
+        return resolved().contains(block);
+    }
+
+    /**
+     * Resolves the selected ids to {@link Block} instances once and caches the result. Membership
+     * tests then avoid the per-call registry key lookup + string allocation that made hot scan
+     * loops (e.g. Block ESP) expensive over large volumes.
+     */
+    private Set<Block> resolved() {
+        Set<Block> cache = resolved;
+        if (cache == null) {
+            cache = new HashSet<>();
+            for (String id : ids) {
+                ResourceLocation key = ResourceLocation.tryParse(id);
+                if (key == null) {
+                    continue;
+                }
+                Block block = BuiltInRegistries.BLOCK.get(key);
+                if (block != Blocks.AIR) {
+                    cache.add(block);
+                }
+            }
+            resolved = cache;
+        }
+        return cache;
     }
 
     public boolean contains(BlockState state) {
@@ -48,14 +74,17 @@ public class BlockListSetting extends Setting {
         if (!ids.remove(key)) {
             ids.add(key);
         }
+        resolved = null;
     }
 
     public void add(Block block) {
         ids.add(BuiltInRegistries.BLOCK.getKey(block).toString());
+        resolved = null;
     }
 
     public void remove(Block block) {
         ids.remove(BuiltInRegistries.BLOCK.getKey(block).toString());
+        resolved = null;
     }
 
     public boolean containsId(String id) {
@@ -64,6 +93,7 @@ public class BlockListSetting extends Setting {
 
     public void clear() {
         ids.clear();
+        resolved = null;
     }
 
     @Override
@@ -90,6 +120,7 @@ public class BlockListSetting extends Setting {
                 }
             }
             ids.addAll(loaded);
+            resolved = null;
         }
     }
 }
