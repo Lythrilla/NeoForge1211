@@ -29,6 +29,8 @@ public class EntityESP extends Module {
     private final ColorSetting animalColor = new ColorSetting("AnimalColor", "Color for animals", 0xC055FF55);
     private final NumberSetting range = new NumberSetting("Range", "Maximum render distance", 64, 16, 128, 8);
 
+    private boolean glowApplied;
+
     public EntityESP() {
         super("EntityESP", "Highlights living entities (Box or Glow modes)", Category.RENDER);
         addSettings(mode, players, hostiles, animals, playerColor, hostileColor, animalColor, range);
@@ -67,13 +69,18 @@ public class EntityESP extends Module {
 
     @Override
     public void onTick() {
-        if (!inGame() || !mode.is("Glow")) {
+        if (!inGame()) {
             return;
         }
-        for (Entity entity : level().entitiesForRendering()) {
-            if (entity instanceof LivingEntity && entity != player()) {
-                entity.setGlowingTag(isValid(entity));
+        if (mode.is("Glow")) {
+            for (Entity entity : level().entitiesForRendering()) {
+                if (entity instanceof LivingEntity && entity != player()) {
+                    entity.setGlowingTag(isValid(entity));
+                }
             }
+            glowApplied = true;
+        } else if (glowApplied) {
+            clearGlow();
         }
     }
 
@@ -93,14 +100,18 @@ public class EntityESP extends Module {
 
     @Override
     public void onDisable() {
+        clearGlow();
+    }
+
+    /** Removes glow tags this module applied; safe to call when not in Glow mode. */
+    private void clearGlow() {
+        glowApplied = false;
         if (mc.level == null) {
             return;
         }
-        if (mode.is("Glow")) {
-            for (Entity entity : level().entitiesForRendering()) {
-                if (entity instanceof LivingEntity && entity != player()) {
-                    entity.setGlowingTag(false);
-                }
+        for (Entity entity : level().entitiesForRendering()) {
+            if (entity instanceof LivingEntity && entity != player()) {
+                entity.setGlowingTag(false);
             }
         }
     }
