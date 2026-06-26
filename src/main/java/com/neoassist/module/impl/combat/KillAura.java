@@ -17,6 +17,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class KillAura extends Module {
     private final ModeSetting mode = new ModeSetting("Mode", "Attack behavior",
@@ -99,7 +101,7 @@ public class KillAura extends Module {
         currentTarget = target;
 
         if (rotate.get()) {
-            float[] desired = RotationUtil.getRotationsToEntity(player().getEyePosition(), target);
+            float[] desired = RotationUtil.getRotations(player().getEyePosition(), aimPoint(target));
             float maxStep = rotateSpeed.getFloat();
             float yaw = smoothRotate(player().getYRot(), desired[0], maxStep);
             float pitch = smoothRotate(player().getXRot(), desired[1], maxStep);
@@ -217,13 +219,28 @@ public class KillAura extends Module {
         if (entity == null || !isValid(entity)) {
             return false;
         }
-        if (player().distanceTo(entity) > maxRange) {
+        if (eyeReach(entity) > maxRange) {
             return false;
         }
         if (wallCheck.get() && !player().hasLineOfSight(entity)) {
             return false;
         }
         return fov.getInt() >= 360 || angleTo(entity) <= fov.get() * 0.5;
+    }
+
+    /** Closest point on {@code entity}'s hitbox to the player's eyes; what we aim at and hit. */
+    private Vec3 aimPoint(Entity entity) {
+        Vec3 eyes = player().getEyePosition();
+        AABB box = entity.getBoundingBox();
+        return new Vec3(
+                Mth.clamp(eyes.x, box.minX, box.maxX),
+                Mth.clamp(eyes.y, box.minY, box.maxY),
+                Mth.clamp(eyes.z, box.minZ, box.maxZ));
+    }
+
+    /** Eye-to-hitbox distance, matching how the server validates attack reach (0 when overlapping). */
+    private double eyeReach(Entity entity) {
+        return player().getEyePosition().distanceTo(aimPoint(entity));
     }
 
     private double score(Entity entity) {
@@ -233,11 +250,11 @@ public class KillAura extends Module {
         if (selector.is("Angle")) {
             return angleTo(entity);
         }
-        return player().distanceToSqr(entity);
+        return eyeReach(entity);
     }
 
     private double angleTo(Entity entity) {
-        float[] rot = RotationUtil.getRotationsToEntity(player().getEyePosition(), entity);
+        float[] rot = RotationUtil.getRotations(player().getEyePosition(), aimPoint(entity));
         double yaw = Mth.abs(Mth.wrapDegrees(rot[0] - player().getYRot()));
         double pitch = Mth.abs(Mth.wrapDegrees(rot[1] - player().getXRot()));
         return Math.hypot(yaw, pitch);
