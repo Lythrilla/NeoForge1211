@@ -12,6 +12,7 @@ import com.neoassist.module.impl.combat.AutoShield;
 import com.neoassist.module.impl.combat.AutoTotem;
 import com.neoassist.module.impl.combat.BowAimbot;
 import com.neoassist.module.impl.combat.Criticals;
+import com.neoassist.module.impl.combat.Hitbox;
 import com.neoassist.module.impl.combat.KillAura;
 import com.neoassist.module.impl.combat.Reach;
 import com.neoassist.module.impl.combat.TriggerBot;
@@ -47,6 +48,7 @@ import com.neoassist.module.impl.render.FreeCam;
 import com.neoassist.module.impl.render.EntityESP;
 import com.neoassist.module.impl.render.Fullbright;
 import com.neoassist.module.impl.render.HUD;
+import com.neoassist.module.impl.render.ItemESP;
 import com.neoassist.module.impl.render.NameTags;
 import com.neoassist.module.impl.render.NoHurtCam;
 import com.neoassist.module.impl.render.StorageESP;
@@ -97,7 +99,7 @@ public class NeoAssist {
                 // Combat
                 new KillAura(), new AutoTotem(), new AutoClicker(), new AntiKnockback(),
                 new Criticals(), new Reach(), new BowAimbot(), new TriggerBot(), new AutoShield(),
-                new AutoGapple(),
+                new AutoGapple(), new Hitbox(),
                 // Player
                 new AutoEat(), new AutoTool(), new AutoArmor(), new ChestStealer(),
                 new FastPlace(), new FastBreak(), new AutoRespawn(), new AutoFish(), new NoFall(),
@@ -108,7 +110,7 @@ public class NeoAssist {
                 new BlockESP(), new Nuker(), new Scaffold(), new AutoReplant(),
                 // Render
                 new Fullbright(), new Zoom(), new HUD(), new Tracers(), new EntityESP(), new NoHurtCam(),
-                new Chams(), new StorageESP(), new Trajectories(), new NameTags(), new FreeCam(),
+                new Chams(), new StorageESP(), new ItemESP(), new Trajectories(), new NameTags(), new FreeCam(),
                 new TargetHUD(), new Waypoints(),
                 // Misc
                 new AntiAFK(), new AutoReconnect(), new TimerModule(), new FakeLag(),
