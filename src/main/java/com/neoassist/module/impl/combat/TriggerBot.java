@@ -17,7 +17,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
 public class TriggerBot extends Module {
-    private final NumberSetting range = new NumberSetting("Range", "Maximum crosshair attack range", 4.0, 2.0, 6.0, 0.1);
+    private final NumberSetting range = new NumberSetting("Range", "Maximum crosshair attack range", 15.0, 2.0, 15.0, 0.1);
     private final NumberSetting delay = new NumberSetting("Delay", "Ticks between attacks", 2, 0, 20, 1);
     private final BooleanSetting targetPlayers = new BooleanSetting("Players", "Target other players", true);
     private final BooleanSetting targetMobs = new BooleanSetting("Hostiles", "Target hostile mobs", true);

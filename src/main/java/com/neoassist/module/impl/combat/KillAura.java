@@ -3,6 +3,7 @@ package com.neoassist.module.impl.combat;
 import com.neoassist.module.Category;
 import com.neoassist.module.Module;
 import com.neoassist.module.setting.BooleanSetting;
+import com.neoassist.module.setting.EntityTypeListSetting;
 import com.neoassist.module.setting.ModeSetting;
 import com.neoassist.module.setting.NumberSetting;
 import com.neoassist.util.RotationUtil;
@@ -20,7 +21,7 @@ import net.minecraft.world.entity.player.Player;
 public class KillAura extends Module {
     private final ModeSetting mode = new ModeSetting("Mode", "Attack behavior",
             "Single", "Single", "Switch");
-    private final NumberSetting range = new NumberSetting("Range", "Attack reach in blocks", 4.0, 2.0, 6.0, 0.1);
+    private final NumberSetting range = new NumberSetting("Range", "Attack reach in blocks", 15.0, 2.0, 15.0, 0.1);
     private final NumberSetting delay = new NumberSetting("Delay", "Ticks between attacks", 2, 0, 20, 1);
     private final ModeSetting selector = new ModeSetting("Selector", "Target selection priority", "Distance",
             "Distance", "Health", "Angle");
@@ -35,6 +36,11 @@ public class KillAura extends Module {
     private final BooleanSetting onlyCharged = new BooleanSetting("OnlyCharged", "Wait for full attack charge", true);
     private final BooleanSetting wallCheck = new BooleanSetting("WallCheck", "Require line of sight", true);
     private final BooleanSetting autoBlock = new BooleanSetting("AutoBlock", "Raise shield between attacks", false);
+    private final EntityTypeListSetting whitelist = new EntityTypeListSetting("Whitelist",
+            "Entity species ignored by KillAura and ESP (edit in GUI)");
+
+    /** Set in the constructor; lets ESP modules share the same species whitelist without a hard dependency. */
+    private static KillAura instance;
 
     private int ticks;
     private Entity currentTarget;
@@ -44,8 +50,14 @@ public class KillAura extends Module {
         super("KillAura", "Automatically attacks nearby entities", Category.COMBAT);
         rotateSpeed.visibleWhen(() -> rotate.get());
         lockTarget.visibleWhen(() -> mode.is("Single"));
+        instance = this;
         addSettings(mode, range, delay, selector, rotate, rotateSpeed, lockTarget, fov,
-                targetPlayers, targetMobs, targetAnimals, targetInvisible, onlyCharged, wallCheck, autoBlock);
+                targetPlayers, targetMobs, targetAnimals, targetInvisible, onlyCharged, wallCheck, autoBlock, whitelist);
+    }
+
+    /** Whether {@code entity}'s species is on the KillAura whitelist (also honored by the ESP modules). */
+    public static boolean isWhitelistedType(Entity entity) {
+        return instance != null && instance.whitelist.contains(entity);
     }
 
     public Entity getCurrentTarget() {
@@ -142,6 +154,9 @@ public class KillAura extends Module {
             return false;
         }
         if (MiddleClickFriend.isWhitelisted(entity)) {
+            return false;
+        }
+        if (whitelist.contains(entity)) {
             return false;
         }
         if (living.isInvisible() && !targetInvisible.get()) {
