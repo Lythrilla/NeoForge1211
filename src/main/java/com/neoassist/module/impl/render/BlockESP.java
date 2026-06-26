@@ -22,7 +22,7 @@ public class BlockESP extends Module {
     private final ModeSetting mode = new ModeSetting("Mode", "Rendering style",
             "Box", "Box", "Filled", "Both");
     private final NumberSetting radius = new NumberSetting("Radius", "Scan radius in blocks", 48, 8, 128, 4);
-    private final NumberSetting lineWidth = new NumberSetting("LineWidth", "Outline thickness visual emphasis", 1.0, 0.5, 3.0, 0.5);
+    private final NumberSetting maxRender = new NumberSetting("MaxRender", "Max boxes drawn per frame (nearest first)", 256, 32, 2000, 32);
     private final BooleanSetting tracerLine = new BooleanSetting("Tracer", "Draw a line from crosshair to each block", false);
     private final ColorSetting color = new ColorSetting("Color", "Outline color", 0xC000FF7F);
     private final BlockListSetting blocks = new BlockListSetting("Blocks", "Blocks to highlight (edit in GUI)",
@@ -34,7 +34,7 @@ public class BlockESP extends Module {
 
     public BlockESP() {
         super("BlockESP", "Outlines selected blocks nearby (pick blocks in GUI)", Category.WORLD);
-        addSettings(mode, radius, lineWidth, tracerLine, color, blocks);
+        addSettings(mode, radius, maxRender, tracerLine, color, blocks);
     }
 
     @Override
@@ -74,12 +74,22 @@ public class BlockESP extends Module {
                     if (blocks.contains(level().getBlockState(pos))) {
                         found.add(pos.immutable());
                         if (found.size() >= 5000) {
+                            sortByDistance(origin);
                             return;
                         }
                     }
                 }
             }
         }
+        sortByDistance(origin);
+    }
+
+    /**
+     * Orders the scan results nearest-first so the render pass can cheaply cap itself to the closest
+     * {@code maxRender} boxes, keeping draw calls bounded regardless of how dense the ore field is.
+     */
+    private void sortByDistance(BlockPos origin) {
+        found.sort(java.util.Comparator.comparingDouble(p -> p.distSqr(origin)));
     }
 
     @Override
@@ -90,8 +100,11 @@ public class BlockESP extends Module {
         int argb = color.get();
         boolean drawFilled = mode.is("Filled") || mode.is("Both");
         boolean drawBox = mode.is("Box") || mode.is("Both");
+        boolean tracer = tracerLine.get();
+        int limit = Math.min(maxRender.getInt(), found.size());
 
-        for (BlockPos pos : found) {
+        for (int i = 0; i < limit; i++) {
+            BlockPos pos = found.get(i);
             AABB box = new AABB(pos).move(-cameraPos.x, -cameraPos.y, -cameraPos.z).deflate(0.002);
             if (drawFilled) {
                 RenderUtil.drawFilledBox(poseStack, buffer, box, argb);
@@ -99,10 +112,7 @@ public class BlockESP extends Module {
             if (drawBox) {
                 RenderUtil.drawBox(poseStack, buffer, box, argb);
             }
-        }
-
-        if (tracerLine.get()) {
-            for (BlockPos pos : found) {
+            if (tracer) {
                 double bx = pos.getX() + 0.5 - cameraPos.x;
                 double by = pos.getY() + 0.5 - cameraPos.y;
                 double bz = pos.getZ() + 0.5 - cameraPos.z;

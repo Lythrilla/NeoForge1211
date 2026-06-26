@@ -11,8 +11,8 @@ public class Reach extends Module {
     private static final double DEFAULT_ENTITY_RANGE = 3.0;
     private static final double DEFAULT_BLOCK_RANGE = 4.5;
 
-    private final NumberSetting range = new NumberSetting("Range", "Entity interaction range", 4.5, 3.0, 6.0, 0.1);
-    private final NumberSetting blockRange = new NumberSetting("BlockRange", "Block interaction range", 5.0, 4.5, 8.0, 0.1);
+    private final NumberSetting range = new NumberSetting("Range", "Entity interaction range", 15.0, 3.0, 15.0, 0.1);
+    private final NumberSetting blockRange = new NumberSetting("BlockRange", "Block interaction range", 15.0, 4.5, 15.0, 0.1);
 
     public Reach() {
         super("Reach", "Extends your attack/interaction range", Category.COMBAT);

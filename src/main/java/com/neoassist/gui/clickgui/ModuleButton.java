@@ -9,6 +9,7 @@ import com.neoassist.gui.clickgui.component.BlockListComponent;
 import com.neoassist.gui.clickgui.component.BooleanComponent;
 import com.neoassist.gui.clickgui.component.ColorComponent;
 import com.neoassist.gui.clickgui.component.Component;
+import com.neoassist.gui.clickgui.component.EntityTypeListComponent;
 import com.neoassist.gui.clickgui.component.ModeComponent;
 import com.neoassist.gui.clickgui.component.NumberComponent;
 import com.neoassist.gui.clickgui.component.VisibilityComponent;
@@ -16,6 +17,7 @@ import com.neoassist.module.Module;
 import com.neoassist.module.setting.BlockListSetting;
 import com.neoassist.module.setting.BooleanSetting;
 import com.neoassist.module.setting.ColorSetting;
+import com.neoassist.module.setting.EntityTypeListSetting;
 import com.neoassist.module.setting.ModeSetting;
 import com.neoassist.module.setting.NumberSetting;
 import com.neoassist.module.setting.Setting;
@@ -59,6 +61,9 @@ public class ModuleButton {
         }
         if (setting instanceof BlockListSetting bl) {
             return new BlockListComponent(bl);
+        }
+        if (setting instanceof EntityTypeListSetting el) {
+            return new EntityTypeListComponent(el);
         }
         return null;
     }

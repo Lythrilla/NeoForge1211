@@ -3,6 +3,7 @@ package com.neoassist.module.impl.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.neoassist.module.Category;
 import com.neoassist.module.Module;
+import com.neoassist.module.impl.combat.KillAura;
 import com.neoassist.module.setting.BooleanSetting;
 import com.neoassist.module.setting.ColorSetting;
 import com.neoassist.module.setting.NumberSetting;
@@ -32,6 +33,9 @@ public class Tracers extends Module {
 
     private boolean isValid(Entity entity) {
         if (!(entity instanceof LivingEntity living) || living == player() || !living.isAlive()) {
+            return false;
+        }
+        if (KillAura.isWhitelistedType(entity)) {
             return false;
         }
         if (player().distanceTo(entity) > range.get()) {
