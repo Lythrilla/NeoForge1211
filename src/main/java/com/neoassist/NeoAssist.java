@@ -12,9 +12,8 @@ import com.neoassist.module.impl.combat.AutoShield;
 import com.neoassist.module.impl.combat.AutoTotem;
 import com.neoassist.module.impl.combat.BowAimbot;
 import com.neoassist.module.impl.combat.Criticals;
-import com.neoassist.module.impl.combat.Hitbox;
+// import com.neoassist.module.impl.combat.Hitbox;
 import com.neoassist.module.impl.combat.KillAura;
-import com.neoassist.module.impl.combat.Reach;
 import com.neoassist.module.impl.combat.TriggerBot;
 import com.neoassist.module.impl.misc.AntiAFK;
 import com.neoassist.module.impl.misc.AutoReconnect;
@@ -24,12 +23,11 @@ import com.neoassist.module.impl.misc.MiddleClickFriend;
 import com.neoassist.module.impl.misc.TimerModule;
 import com.neoassist.module.impl.movement.AutoSprint;
 import com.neoassist.module.impl.movement.AutoWalk;
-import com.neoassist.module.impl.movement.Flight;
 import com.neoassist.module.impl.movement.HighJump;
-import com.neoassist.module.impl.movement.Jesus;
+// import com.neoassist.module.impl.movement.Jesus;
 import com.neoassist.module.impl.movement.NoSlow;
 import com.neoassist.module.impl.movement.Parkour;
-import com.neoassist.module.impl.movement.Speed;
+// import com.neoassist.module.impl.movement.Speed;
 import com.neoassist.module.impl.movement.Sneak;
 import com.neoassist.module.impl.movement.Spider;
 import com.neoassist.module.impl.movement.Step;
@@ -39,10 +37,10 @@ import com.neoassist.module.impl.player.AutoFish;
 import com.neoassist.module.impl.player.AutoRespawn;
 import com.neoassist.module.impl.player.AutoTool;
 import com.neoassist.module.impl.player.ChestStealer;
-import com.neoassist.module.impl.player.FastBreak;
+// import com.neoassist.module.impl.player.FastBreak;
 import com.neoassist.module.impl.player.FastPlace;
-import com.neoassist.module.impl.player.NoFall;
-import com.neoassist.module.impl.render.BlockESP;
+// import com.neoassist.module.impl.player.NoFall;
+// import com.neoassist.module.impl.render.BlockESP;
 import com.neoassist.module.impl.render.Chams;
 import com.neoassist.module.impl.render.FreeCam;
 import com.neoassist.module.impl.render.EntityESP;
@@ -58,8 +56,8 @@ import com.neoassist.module.impl.render.Trajectories;
 import com.neoassist.module.impl.render.Waypoints;
 import com.neoassist.module.impl.render.Zoom;
 import com.neoassist.module.impl.world.AutoReplant;
-import com.neoassist.module.impl.world.Nuker;
-import com.neoassist.module.impl.world.Scaffold;
+// import com.neoassist.module.impl.world.Nuker;
+// import com.neoassist.module.impl.world.Scaffold;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -98,16 +96,20 @@ public class NeoAssist {
         MODULES.register(
                 // Combat
                 new KillAura(), new AutoTotem(), new AutoClicker(), new AntiKnockback(),
-                new Criticals(), new Reach(), new BowAimbot(), new TriggerBot(), new AutoShield(),
-                new AutoGapple(), new Hitbox(),
+                new Criticals(), new BowAimbot(), new TriggerBot(), new AutoShield(),
+                new AutoGapple(),
+                // new Hitbox(),
                 // Player
                 new AutoEat(), new AutoTool(), new AutoArmor(), new ChestStealer(),
-                new FastPlace(), new FastBreak(), new AutoRespawn(), new AutoFish(), new NoFall(),
+                new FastPlace(), new AutoRespawn(), new AutoFish(),
+                // new FastBreak(), new NoFall(),
                 // Movement
                 new AutoSprint(), new Step(), new Sneak(), new Spider(), new AutoWalk(), new HighJump(),
-                new Flight(), new Jesus(), new NoSlow(), new Parkour(), new Speed(),
+                new NoSlow(), new Parkour(),
+                // new Jesus(), new Speed(),
                 // World
-                new BlockESP(), new Nuker(), new Scaffold(), new AutoReplant(),
+                new AutoReplant(),
+                // new BlockESP(), new Nuker(), new Scaffold(),
                 // Render
                 new Fullbright(), new Zoom(), new HUD(), new Tracers(), new EntityESP(), new NoHurtCam(),
                 new Chams(), new StorageESP(), new ItemESP(), new Trajectories(), new NameTags(), new FreeCam(),
